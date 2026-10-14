@@ -4,7 +4,7 @@ A personal fitness dashboard for workout analytics, GPS routes, and optional AI 
 
 ## Quick start
 
-Use Node.js 22 and npm. Copy `.env.example` to `.env`, then run:
+Use Node.js 22.18 or newer and npm. Copy `.env.example` to `.env`, then run:
 
 ```sh
 npm ci
@@ -13,6 +13,10 @@ npm run dev
 ```
 
 Open http://localhost:3000. Without imported activities, the dashboard shows empty states. Mapbox and OpenAI keys are optional.
+
+## Try the demo
+
+Run `npm run dev:demo` to explore synthetic workouts and steps without Garmin exports. Visit `/setup` for configuration status and import instructions. Demo AI coaching stays offline, and its GPS route is fictional. See [demo mode](docs/demo.md).
 
 ## Garmin data
 
@@ -36,6 +40,7 @@ Activity files and monitoring records stay local by default. Enabling AI coachin
 ```sh
 npm run lint
 npm run typecheck
+npm test
 npm run build
 npm start
 ```
