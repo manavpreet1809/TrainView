@@ -1,0 +1,178 @@
+[
+  {
+    "id": "demo-01",
+    "daysAgo": 0,
+    "distanceKm": 4.0,
+    "durationMinutes": 25,
+    "trainingLoad": 50,
+    "type": "running",
+    "averageHeartRate": 120,
+    "maxHeartRate": 150,
+    "calories": 220
+  },
+  {
+    "id": "demo-02",
+    "daysAgo": 1,
+    "distanceKm": 5.5,
+    "durationMinutes": 34,
+    "trainingLoad": 70,
+    "type": "cycling",
+    "averageHeartRate": 126,
+    "maxHeartRate": 154,
+    "calories": 270
+  },
+  {
+    "id": "demo-03",
+    "daysAgo": 2,
+    "distanceKm": 7.0,
+    "durationMinutes": 43,
+    "trainingLoad": 90,
+    "type": "walking",
+    "averageHeartRate": 132,
+    "maxHeartRate": 158,
+    "calories": 320
+  },
+  {
+    "id": "demo-04",
+    "daysAgo": 3,
+    "distanceKm": 8.5,
+    "durationMinutes": 52,
+    "trainingLoad": 110,
+    "type": "running",
+    "averageHeartRate": 138,
+    "maxHeartRate": 162,
+    "calories": 370
+  },
+  {
+    "id": "demo-05",
+    "daysAgo": 4,
+    "distanceKm": 10.0,
+    "durationMinutes": 61,
+    "trainingLoad": 130,
+    "type": "running",
+    "averageHeartRate": 144,
+    "maxHeartRate": 166,
+    "calories": 420
+  },
+  {
+    "id": "demo-06",
+    "daysAgo": 5,
+    "distanceKm": 4.0,
+    "durationMinutes": 25,
+    "trainingLoad": 50,
+    "type": "cycling",
+    "averageHeartRate": 120,
+    "maxHeartRate": 150,
+    "calories": 220
+  },
+  {
+    "id": "demo-07",
+    "daysAgo": 6,
+    "distanceKm": 5.5,
+    "durationMinutes": 34,
+    "trainingLoad": 70,
+    "type": "walking",
+    "averageHeartRate": 126,
+    "maxHeartRate": 154,
+    "calories": 270
+  },
+  {
+    "id": "demo-08",
+    "daysAgo": 7,
+    "distanceKm": 7.0,
+    "durationMinutes": 43,
+    "trainingLoad": 90,
+    "type": "running",
+    "averageHeartRate": 132,
+    "maxHeartRate": 158,
+    "calories": 320
+  },
+  {
+    "id": "demo-09",
+    "daysAgo": 8,
+    "distanceKm": 8.5,
+    "durationMinutes": 52,
+    "trainingLoad": 110,
+    "type": "running",
+    "averageHeartRate": 138,
+    "maxHeartRate": 162,
+    "calories": 370
+  },
+  {
+    "id": "demo-10",
+    "daysAgo": 9,
+    "distanceKm": 10.0,
+    "durationMinutes": 61,
+    "trainingLoad": 130,
+    "type": "cycling",
+    "averageHeartRate": 144,
+    "maxHeartRate": 166,
+    "calories": 420
+  },
+  {
+    "id": "demo-11",
+    "daysAgo": 10,
+    "distanceKm": 4.0,
+    "durationMinutes": 25,
+    "trainingLoad": 50,
+    "type": "walking",
+    "averageHeartRate": 120,
+    "maxHeartRate": 150,
+    "calories": 220
+  },
+  {
+    "id": "demo-12",
+    "daysAgo": 11,
+    "distanceKm": 5.5,
+    "durationMinutes": 34,
+    "trainingLoad": 70,
+    "type": "running",
+    "averageHeartRate": 126,
+    "maxHeartRate": 154,
+    "calories": 270
+  },
+  {
+    "id": "demo-13",
+    "daysAgo": 12,
+    "distanceKm": 7.0,
+    "durationMinutes": 43,
+    "trainingLoad": 90,
+    "type": "running",
+    "averageHeartRate": 132,
+    "maxHeartRate": 158,
+    "calories": 320
+  },
+  {
+    "id": "demo-14",
+    "daysAgo": 13,
+    "distanceKm": 8.5,
+    "durationMinutes": 52,
+    "trainingLoad": 110,
+    "type": "cycling",
+    "averageHeartRate": 138,
+    "maxHeartRate": 162,
+    "calories": 370
+  },
+  {
+    "id": "demo-15",
+    "daysAgo": 14,
+    "distanceKm": 10.0,
+    "durationMinutes": 61,
+    "trainingLoad": 130,
+    "type": "walking",
+    "averageHeartRate": 144,
+    "maxHeartRate": 166,
+    "calories": 420
+  },
+  {
+    "id": "demo-16",
+    "daysAgo": 15,
+    "distanceKm": 4.0,
+    "durationMinutes": 25,
+    "trainingLoad": 50,
+    "type": "running",
+    "averageHeartRate": 120,
+    "maxHeartRate": 150,
+    "calories": 220
+  }
+]
