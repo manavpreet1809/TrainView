@@ -843,3 +843,5 @@ export const getNextRacePlan = cache(async () => {
     ],
   };
 });
+
+export type RacePlan = Awaited<ReturnType<typeof getNextRacePlan>>;
