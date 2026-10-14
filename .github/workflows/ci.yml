@@ -17,3 +17,5 @@ jobs:
       - run: npm run db:setup
       - run: npm run check
       - run: npm run build
+        env:
+          TRAINVIEW_DEMO_MODE: true
