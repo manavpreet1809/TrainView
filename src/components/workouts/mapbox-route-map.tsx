@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import mapboxgl, { LngLatLike } from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
 import { Maximize2, Minimize2, Pause, Play, RotateCcw } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { cn } from '@/lib/utils';
@@ -32,7 +32,7 @@ export default function MapboxRouteMap({
 }: MapboxRouteMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const lastFrameRef = useRef<number | null>(null);
   const distanceRef = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -133,7 +133,7 @@ export default function MapboxRouteMap({
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: MAP_STYLE,
-      center: lngLat[0] as LngLatLike,
+      center: [lngLat[0][0], lngLat[0][1]],
       zoom: 13,
       pitch: 65,
       bearing: -20,
@@ -359,7 +359,7 @@ export default function MapboxRouteMap({
         { lng: smoothedPoint[0], lat: smoothedPoint[1] },
         smoothedHeight,
       );
-      camera.lookAtPoint(lookAt);
+      camera.lookAtPoint([lookAt[0], lookAt[1]]);
       map.setFreeCameraOptions(camera);
 
       if (distanceRef.current >= totalDistance) {
@@ -510,6 +510,7 @@ function ProgressBar({ progress }: { progress: number }) {
 function buildRouteGeoJSON(coordinates: [number, number, number][]) {
   return {
     type: 'Feature' as const,
+    properties: {},
     geometry: {
       type: 'LineString' as const,
       coordinates: coordinates.map(coord => [coord[0], coord[1], coord[2]]),
