@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type { TooltipProps } from 'recharts/types/component/DefaultTooltipContent';
+import type { TooltipContentProps } from 'recharts';
 import { IntensityRecord } from '@/types/garmin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -77,7 +77,7 @@ export function SleepQualityChart({ data, className }: SleepQualityChartProps) {
   );
 }
 
-function SleepTooltip({ active, payload, label }: TooltipProps<number, string>) {
+function SleepTooltip({ active, payload, label }: Partial<TooltipContentProps<number, string>>) {
   if (!active || !payload?.length) {
     return null;
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import type { TooltipProps } from 'recharts/types/component/DefaultTooltipContent';
+import type { TooltipContentProps } from 'recharts';
 import { ReadinessSnapshot } from '@/types/garmin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -84,7 +84,7 @@ export function ReadinessLoadChart({ data, className }: ReadinessLoadChartProps)
   );
 }
 
-function ReadinessTooltip({ active, payload, label }: TooltipProps<number, string>) {
+function ReadinessTooltip({ active, payload, label }: Partial<TooltipContentProps<number, string>>) {
   if (!active || !payload?.length) {
     return null;
   }

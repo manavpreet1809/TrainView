@@ -1,7 +1,7 @@
 'use client';
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import type { TooltipProps } from 'recharts/types/component/DefaultTooltipContent';
+import type { TooltipContentProps } from 'recharts';
 import { HeartRateZone } from '@/types/garmin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -68,7 +68,7 @@ export function HeartRateZonesChart({ data, className }: HeartRateZonesChartProp
   );
 }
 
-function ZoneTooltip({ active, payload }: TooltipProps<number, string>) {
+function ZoneTooltip({ active, payload }: Partial<TooltipContentProps<number, string>>) {
   if (!active || !payload?.length) {
     return null;
   }
