@@ -8,10 +8,13 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck",
+    "check": "npm run lint && npm run typecheck && npm test",
     "db:generate": "prisma generate",
     "db:setup": "prisma db push",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "dev:demo": "TRAINVIEW_DEMO_MODE=true next dev",
+    "test:smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
@@ -45,6 +48,6 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=22.18.0"
   }
 }
