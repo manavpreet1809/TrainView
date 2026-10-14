@@ -23,6 +23,7 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
+  { title: 'Data setup', description: 'Sample data, imports, and privacy.', href: '/setup', icon: Activity },
   {
     title: 'Dashboard',
     description: 'Overview of readiness, mileage, and vitals.',
