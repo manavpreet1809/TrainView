@@ -1,3 +1,4 @@
+import { getDataConfig } from '@/lib/data-config';
 import { NextResponse } from 'next/server';
 import {
   getKeyMetrics,
@@ -27,6 +28,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Message is required.' }, { status: 400 });
   }
 
+  if (getDataConfig().demo) {
+    return new NextResponse('TrainView demo: these workouts are synthetic. Explore the dashboard, workout details, and fictional route. Live AI coaching is disabled in demo mode.', {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    });
+  }
   const context = await buildContextSummary();
 
   const apiKey = process.env.OPENAI_API_KEY;
