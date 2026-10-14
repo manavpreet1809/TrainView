@@ -1,3 +1,7 @@
+import { getDataConfig } from './data-config';
+import { getDemoActivities } from './demo/activities';
+import { getDemoCoordinates } from './demo/routes';
+import { getDemoSteps } from './demo/monitoring';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { cache } from 'react';
@@ -39,9 +43,7 @@ type ActivityFile = {
   hasPolyline: boolean;
 };
 
-const DATA_ROOT =
-  process.env.GARMIN_DATA_ROOT ??
-  path.resolve(process.cwd(), 'HealthData');
+const DATA_ROOT = getDataConfig().root;
 const ACTIVITIES_DIR = path.join(DATA_ROOT, 'FitFiles', 'Activities');
 
 type FitRecord = {
@@ -111,6 +113,7 @@ const safePace = (distanceKm: number, durationMinutes: number) => {
 };
 
 const loadActivities = cache(async (): Promise<ActivityFile[]> => {
+  if (getDataConfig().demo) return getDemoActivities();
   try {
     const entries = await fs.readdir(ACTIVITIES_DIR);
     const activityFiles = entries.filter(file =>
@@ -219,6 +222,7 @@ const hasMonitoringTable = cache(async () => {
 });
 
 const loadMonitoringSteps = cache(async () => {
+  if (getDataConfig().demo) return getDemoSteps();
   const tableExists = await hasMonitoringTable();
   if (!tableExists) {
     return [];
@@ -667,6 +671,7 @@ const coordinatesCache = new Map<string, RoutePoint[]>();
 export async function getActivityCoordinates(
   activityId: string,
 ): Promise<RoutePoint[]> {
+  if (getDataConfig().demo) return getDemoCoordinates(activityId);
   if (!activityId) {
     return [];
   }
