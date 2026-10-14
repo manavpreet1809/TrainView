@@ -1,4 +1,4 @@
-# TrainView
+# TrainView: Fitness Analytics and AI Coaching
 
 A personal fitness dashboard for workout analytics, GPS routes, and optional AI coaching. Built by Manavpreet Singh.
 
