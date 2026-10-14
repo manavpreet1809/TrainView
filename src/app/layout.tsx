@@ -1,3 +1,4 @@
+import { DataNotice } from '@/components/data-notice';
 import type { Metadata } from 'next';
 import { DashboardShell } from '@/components/dashboard/dashboard-shell';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -20,7 +21,7 @@ export default function RootLayout({
         className={'min-h-screen antialiased'}
       >
         <ThemeProvider>
-          <DashboardShell>{children}</DashboardShell>
+          <DashboardShell><DataNotice />{children}</DashboardShell>
         </ThemeProvider>
       </body>
     </html>
