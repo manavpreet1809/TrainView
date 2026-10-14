@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { HeartRateZonesChart } from '@/components/charts/heart-rate-zones-chart';
 import { MileageTrendChart } from '@/components/charts/mileage-trend-chart';

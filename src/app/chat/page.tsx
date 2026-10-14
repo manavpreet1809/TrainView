@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ChatInterface } from '@/components/chat/chat-interface';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -32,7 +34,6 @@ export default async function ChatPage() {
     nextRace: racePlan.name,
   };
 
-  const raceDate = racePlan.date ? new Date(racePlan.date) : undefined;
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 py-8">
