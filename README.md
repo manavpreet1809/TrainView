@@ -31,7 +31,7 @@ Export your own records using GarminDB separately, then set `GARMIN_DATA_ROOT` t
 
 ## Data accuracy and privacy
 
-Some readiness, HRV, resting-heart-rate, and sleep values currently use heuristic estimates rather than imported measurements. Race-plan content is a placeholder derived from activity history. These areas are scheduled for correction; do not treat them as measured health data or medical guidance.
+Activity summaries are validated individually; invalid files and duplicate activity IDs are skipped and counted on `/setup`. Missing optional numeric load, intensity, and zone fields contribute zero to totals. Missing heart rate stays unavailable. Readiness, HRV, resting heart rate, sleep scores, and race goals are not imported or inferred. These dashboards are not medical guidance.
 
 Activity files and monitoring records stay local by default. Enabling AI coaching sends a training summary and your question to OpenAI. Maps contact Mapbox. Never publish real health exports, GPS tracks, databases, credentials, or session files. This version has no user authentication: use it locally, not as a public server with personal data.
 

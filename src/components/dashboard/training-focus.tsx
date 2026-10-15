@@ -15,7 +15,7 @@ export function TrainingFocusSummary({ focus }: TrainingFocusProps) {
       <CardHeader>
         <CardTitle>Focus areas</CardTitle>
         <CardDescription>
-          Themes derived from Garmin training readiness and load balance.
+          Suggestions based on recorded heart-rate zone distribution.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

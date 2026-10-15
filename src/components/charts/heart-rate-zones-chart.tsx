@@ -19,7 +19,7 @@ export function HeartRateZonesChart({ data, className }: HeartRateZonesChartProp
       <CardHeader className="pb-4">
         <CardTitle>Heart-rate distribution</CardTitle>
         <CardDescription>
-          Time-in-zone captured across the last seven activities.
+          Time-in-zone captured across all imported activities.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex h-full flex-col">

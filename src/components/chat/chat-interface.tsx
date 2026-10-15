@@ -15,9 +15,7 @@ type Message = {
 };
 
 export type ChatContext = {
-  readinessScore: number;
   weeklyDistance: string;
-  nextRace: string;
 };
 
 type ChatInterfaceProps = {
@@ -30,7 +28,7 @@ export function ChatInterface({ context, endpoint = '/api/chat' }: ChatInterface
     {
       id: 'm-0',
       role: 'assistant',
-      content: `Hey! I'm your Garmin AI coach. You're carrying a readiness score of ${context.readinessScore} with ${context.weeklyDistance} logged this week. Ask anything — pacing, fatigue, or how to sharpen for next race.`,
+      content: `Welcome to TrainView. Your recorded 7-day distance is ${context.weeklyDistance}. Ask about your workout history. Readiness, sleep, HRV, and race goals are not available.`,
       createdAt: new Date().toISOString(),
     },
   ]);
@@ -196,12 +194,5 @@ function MessageBubble({ message }: { message: Message }) {
 }
 
 function buildPlaceholderReply(prompt: string, context: ChatContext) {
-  const suggestions = [
-    `Based on your readiness score of ${context.readinessScore}, schedule one lighter aerobic day before the next threshold session. Keeping ${context.weeklyDistance} steady will leave headroom for sharpening.`,
-    `You're trending well for ${context.nextRace}. Layer strides after your mid-week run and aim for relaxed 5 × 20 s pickups to stay sharp without adding load.`,
-    `Mix a technique day into your week: 30 minutes Z2 with 6 × 30-second form surges. It reinforces economy while you maintain ${context.weeklyDistance}.`,
-  ];
-
-  const hash = prompt.length % suggestions.length;
-  return suggestions[hash];
+  return `The coaching service could not respond. Your recorded 7-day distance is ${context.weeklyDistance}. No personalized recommendation was generated for: "${prompt}".`;
 }

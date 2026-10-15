@@ -4,7 +4,10 @@ const base = process.env.TRAINVIEW_TEST_URL || 'http://127.0.0.1:3000';
 for (const route of ['/', '/workouts', '/chat', '/setup']) {
   const response = await fetch(new URL(route, base));
   assert.equal(response.status, 200, route);
-  assert.match(await response.text(), /Demo mode: all workouts/);
+  const html = await response.text();
+  assert.match(html, /Demo mode: all workouts/);
+  assert.doesNotMatch(html, /readiness score of|Eight-day rolling average|NaN/);
+  if (route === '/') assert.match(html, /no score is inferred/);
 }
 const route = await fetch(new URL('/api/workouts/demo-01/map', base));
 assert.equal(route.status, 200);

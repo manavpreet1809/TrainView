@@ -13,6 +13,7 @@ export async function DataNotice() {
   return (
     <aside aria-label="Data source" className="rounded-lg border bg-background p-4 text-sm">
       <p>{messages[status.state]}</p>
+      {(status.skipped > 0 || status.duplicates > 0) && <p>{status.skipped} invalid summaries and {status.duplicates} duplicate IDs were skipped. Review your exports in data setup.</p>}
       <Link href="/setup" className="mt-2 inline-block underline">Data setup and privacy</Link>
     </aside>
   );

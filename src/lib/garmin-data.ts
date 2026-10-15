@@ -1,3 +1,5 @@
+import { readActivityImport } from './activity-import';
+import { localDateKey, formatPace, mean } from './metric-utils';
 import { getDataConfig } from './data-config';
 import { getDemoActivities } from './demo/activities';
 import { getDemoCoordinates } from './demo/routes';
@@ -25,26 +27,10 @@ export type KeyMetric = {
   helper: string;
 };
 
-type ActivityFile = {
-  id: string;
-  name: string;
-  type: string;
-  distanceKm: number;
-  durationMinutes: number;
-  trainingLoad: number;
-  averageHeartRate?: number;
-  maxHeartRate?: number;
-  calories?: number;
-  moderateMinutes: number;
-  vigorousMinutes: number;
-  startTime: Date;
-  hrZones: number[];
-  fitFile: string;
-  hasPolyline: boolean;
-};
+type ActivityFile = import('./activity-import').ImportedActivity;
 
 const DATA_ROOT = getDataConfig().root;
-const ACTIVITIES_DIR = path.join(DATA_ROOT, 'FitFiles', 'Activities');
+
 
 type FitRecord = {
   type?: string;
@@ -79,9 +65,6 @@ async function getFitDecoder() {
   return fitDecoderLoader;
 }
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
-
 const sum = (values: number[]) =>
   values.reduce((total, value) => total + (value || 0), 0);
 
@@ -99,111 +82,16 @@ const startOfWeek = (date: Date) => {
   return copy;
 };
 
-const toISODate = (date: Date) => startOfDay(date).toISOString().slice(0, 10);
+const toISODate = (date: Date) => localDateKey(date);
 
 const round = (value: number, digits = 1) =>
   Number.isFinite(value) ? Number(value.toFixed(digits)) : 0;
 
-const safePace = (distanceKm: number, durationMinutes: number) => {
-  if (!distanceKm || distanceKm === 0) return undefined;
-  const pace = durationMinutes / distanceKm; // minutes per km
-  const minutes = Math.floor(pace);
-  const seconds = Math.round((pace - minutes) * 60);
-  return `${minutes}:${seconds.toString().padStart(2, '0')}/km`;
-};
-
+const safePace = formatPace;
+export const getImportReport = cache(async () => readActivityImport(DATA_ROOT));
 const loadActivities = cache(async (): Promise<ActivityFile[]> => {
   if (getDataConfig().demo) return getDemoActivities();
-  try {
-    const entries = await fs.readdir(ACTIVITIES_DIR);
-    const activityFiles = entries.filter(file =>
-      /^activity_\d+\.json$/i.test(file),
-    );
-
-    const activities = await Promise.all(
-      activityFiles.map(async file => {
-        const activityPath = path.join(ACTIVITIES_DIR, file);
-        const raw = await fs.readFile(activityPath, 'utf8');
-        const json = JSON.parse(raw) ?? {};
-
-        const startTime =
-          typeof json.beginTimestamp === 'number'
-            ? new Date(json.beginTimestamp)
-            : json.startTimeLocal
-              ? new Date(
-                  `${String(json.startTimeLocal).replace(' ', 'T')}`,
-                )
-              : new Date();
-
-        const distanceKm =
-          typeof json.distance === 'number' ? json.distance / 1000 : 0;
-        const durationMinutes =
-          typeof json.duration === 'number' ? json.duration / 60 : 0;
-
-        const activityId = String(json.activityId ?? file.replace(/\D+/g, ''));
-        const fitFile = path.join(
-          DATA_ROOT,
-          'FitFiles',
-          'Activities',
-          `${activityId}_ACTIVITY.fit`,
-        );
-
-        let hasPolyline = false;
-        try {
-          const detailRaw = await fs.readFile(
-            path.join(ACTIVITIES_DIR, `activity_details_${activityId}.json`),
-            'utf8',
-          );
-          const detail = JSON.parse(detailRaw);
-          hasPolyline = Boolean(detail?.metadataDTO?.hasPolyline);
-        } catch (error) {
-          if ((error as NodeJS.ErrnoException)?.code !== 'ENOENT') {
-            console.warn('[garmin-data] Unable to read activity detail', activityId, error);
-          }
-        }
-
-        return {
-          id: activityId,
-          name:
-            json.activityName ??
-            json.activityType?.typeKey?.replace('_', ' ') ??
-            'Activity',
-          type: json.activityType?.typeKey ?? 'unknown',
-          distanceKm,
-          durationMinutes,
-          trainingLoad: json.activityTrainingLoad ?? 0,
-          averageHeartRate:
-            typeof json.averageHR === 'number' ? json.averageHR : undefined,
-          maxHeartRate:
-            typeof json.maxHR === 'number' ? json.maxHR : undefined,
-          calories: typeof json.calories === 'number' ? json.calories : 0,
-          moderateMinutes: json.moderateIntensityMinutes ?? 0,
-          vigorousMinutes: json.vigorousIntensityMinutes ?? 0,
-          startTime,
-          hrZones: [
-            json.hrTimeInZone_1 ?? 0,
-            json.hrTimeInZone_2 ?? 0,
-            json.hrTimeInZone_3 ?? 0,
-            json.hrTimeInZone_4 ?? 0,
-            json.hrTimeInZone_5 ?? 0,
-          ],
-          fitFile,
-          hasPolyline,
-        };
-      }),
-    );
-
-    return activities
-      .filter(activity => !Number.isNaN(activity.startTime.getTime()))
-      .sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
-  } catch (error) {
-    console.warn(
-      '[garmin-data] Unable to load activities from',
-      ACTIVITIES_DIR,
-      error,
-    );
-    return [];
-  }
+  return (await getImportReport()).activities;
 });
 
 const hasMonitoringTable = cache(async () => {
@@ -319,30 +207,19 @@ export const getKeyMetrics = cache(async (): Promise<KeyMetric[]> => {
     intensityPrevious,
   );
 
-  const avgHrCurrent =
-    currentRange.length > 0
-      ? sum(currentRange.map(a => a.averageHeartRate ?? 0)) /
-        currentRange.filter(a => a.averageHeartRate).length
-      : 0;
-  const avgHrPrevious =
-    previousRange.length > 0
-      ? sum(previousRange.map(a => a.averageHeartRate ?? 0)) /
-        previousRange.filter(a => a.averageHeartRate).length
-      : 0;
-  const { delta: hrDelta, trend: hrTrend } = trendDelta(
-    avgHrCurrent || 0,
-    avgHrPrevious || 0,
-  );
+  const avgHrCurrent = mean(currentRange.map(a => a.averageHeartRate ?? 0));
+  const avgHrPrevious = mean(previousRange.map(a => a.averageHeartRate ?? 0));
+  const { delta: hrDelta, trend: hrTrend } = trendDelta(avgHrCurrent ?? 0, avgHrPrevious ?? 0);
 
   const stepsCurrent = monitoringSteps
     .filter(row => {
-      const day = startOfDay(new Date(row.day));
+      const day = startOfDay(new Date(`${row.day}T00:00:00`));
       return day >= sevenDaysAgo && day <= now;
     })
     .reduce((acc, row) => acc + (row.steps ?? 0), 0);
   const stepsPrevious = monitoringSteps
     .filter(row => {
-      const day = startOfDay(new Date(row.day));
+      const day = startOfDay(new Date(`${row.day}T00:00:00`));
       return day >= fourteenDaysAgo && day < sevenDaysAgo;
     })
     .reduce((acc, row) => acc + (row.steps ?? 0), 0);
@@ -395,7 +272,7 @@ export const getKeyMetrics = cache(async (): Promise<KeyMetric[]> => {
       id: 'avg-hr',
       label: 'Avg activity HR',
       value: avgHrCurrent ? `${Math.round(avgHrCurrent)} bpm` : '—',
-      delta: `${hrDelta} bpm vs prev`,
+      delta: avgHrCurrent !== null && avgHrPrevious !== null ? `${hrDelta} bpm vs prev` : 'Comparison unavailable',
       trend: hrTrend,
       helper: 'Average activity heart-rate (Garmin summary files).',
     },
@@ -437,19 +314,12 @@ export const getMileageTrend = cache(async (): Promise<WeeklyMileage[]> => {
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(-8)
     .map(([week, bucket]) => {
-      const readiness = clamp(
-        Math.round(70 + bucket.longRun * 2 - bucket.trainingLoad * 0.1),
-        40,
-        95,
-      );
-
       return {
         week,
         distanceKm: round(bucket.distance, 1),
         elevationGain: 0,
         longRunKm: round(bucket.longRun, 1),
         trainingLoad: Math.round(bucket.trainingLoad),
-        readiness,
         activityCount: bucket.count,
       };
     });
@@ -498,31 +368,10 @@ export const getReadinessTrend = cache(
           bucket.heartRates.length > 0
             ? sum(bucket.heartRates) / bucket.heartRates.length
             : 0;
-        const maxHeartRate =
-          bucket.maxHeartRates.length > 0
-            ? Math.max(...bucket.maxHeartRates)
-            : avgHeartRate;
-        const readiness = clamp(
-          Math.round(110 - avgHeartRate),
-          40,
-          95,
-        );
-        const restingHeartRate = clamp(Math.round(avgHeartRate - 15), 35, 80);
-        const hrv = clamp(Math.round(maxHeartRate - avgHeartRate), 10, 60);
-        const sleepScore = clamp(
-          Math.round(90 - bucket.intensityMinutes / 5),
-          50,
-          95,
-        );
-
         return {
           date,
-          readiness,
-          hrv,
-          restingHeartRate,
-          sleepScore,
-          acuteLoad: Math.round(bucket.trainingLoad || bucket.intensityMinutes),
-          avgHeartRate: Math.round(avgHeartRate),
+          acuteLoad: Math.round(bucket.trainingLoad),
+          avgHeartRate: bucket.heartRates.length ? Math.round(avgHeartRate) : null,
         };
       });
   },
@@ -776,7 +625,7 @@ export const getWorkoutSummary = cache(async () => {
   const sevenDaysAgo = startOfDay(new Date(now));
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   const weekly = activities.filter(
-    activity => activity.startTime >= sevenDaysAgo,
+    activity => activity.startTime >= sevenDaysAgo && activity.startTime <= now,
   );
   const weekDistance = sum(weekly.map(a => a.distanceKm));
 
@@ -804,49 +653,9 @@ export const getWorkoutSummary = cache(async () => {
   };
 });
 
-export const getNextRacePlan = cache(async () => {
-  const activities = await loadActivities();
-  if (activities.length === 0) {
-    return {
-      name: 'No activities yet',
-      date: '',
-      location: 'GarminDB',
-      targetTime: '--',
-      focusBlocks: [],
-    };
-  }
-
-  const latest = activities[0];
-  const durationMinutes = latest.durationMinutes;
-  const hours = Math.floor(durationMinutes / 60);
-  const minutes = Math.round(durationMinutes % 60)
-    .toString()
-    .padStart(2, '0');
-
-  return {
-    name: `${latest.name} (${latest.type.replace('_', ' ')})`,
-    date: latest.startTime.toISOString(),
-    location: 'Garmin activity history',
-    targetTime: `${hours}:${minutes}:00`,
-    focusBlocks: [
-      {
-        label: 'Review',
-        weeks: 1,
-        emphasis: 'Analyse recent training load to set your next target.',
-      },
-      {
-        label: 'Build',
-        weeks: 3,
-        emphasis:
-          'Blend endurance and tempo sessions to maintain fitness momentum.',
-      },
-      {
-        label: 'Sharpen',
-        weeks: 2,
-        emphasis: 'Add focused race-pace efforts leading into your goal event.',
-      },
-    ],
-  };
-});
-
+// No goal event is inferred from past workout history.
+export const getNextRacePlan = cache(async () => ({
+  name: 'No race goal configured', date: '', location: '', targetTime: '--',
+  focusBlocks: [] as { label: string; weeks: number; emphasis: string }[],
+}));
 export type RacePlan = Awaited<ReturnType<typeof getNextRacePlan>>;

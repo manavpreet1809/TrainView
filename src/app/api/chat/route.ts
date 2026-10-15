@@ -2,12 +2,11 @@ import { getDataConfig } from '@/lib/data-config';
 import { NextResponse } from 'next/server';
 import {
   getKeyMetrics,
-  getNextRacePlan,
   getRecentWorkouts,
   getTrainingFocus,
 } from '@/lib/garmin-data';
 
-const SYSTEM_PROMPT = `You are TrainView AI, an expert endurance coach who personalises guidance using Garmin Connect metrics. Use the provided context only. Where useful, tie insights to readiness, training load, time-in-zone, and sleep.`;
+const SYSTEM_PROMPT = `You are TrainView AI, an expert endurance coach who personalises guidance using Garmin Connect metrics. Use the provided context only. Discuss recorded load and heart-rate zones only when available. Readiness, HRV, resting heart rate, sleep, and race goals are unavailable. Do not invent measurements or goals.`;
 
 type ChatRequestBody = {
   message?: string;
@@ -135,11 +134,10 @@ export async function POST(request: Request) {
 }
 
 async function buildContextSummary() {
-  const [metrics, workouts, focus, race] = await Promise.all([
+  const [metrics, workouts, focus] = await Promise.all([
     getKeyMetrics(),
     getRecentWorkouts(3),
     getTrainingFocus(),
-    getNextRacePlan(),
   ]);
 
   const metricsText = metrics
@@ -162,13 +160,9 @@ async function buildContextSummary() {
     .map(entry => `- ${entry.title}: ${entry.description}`)
     .join('\n');
 
-  return `Garmin data context\nKey metrics:\n${metricsText}\n\nRecent sessions:\n${workoutText}\n\nFocus areas:\n${focusText}\n\nNext race: ${race.name} on ${new Date(race.date).toLocaleDateString(undefined, {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  })} (target ${race.targetTime}).`;
+  return `Garmin data context\nKey metrics:\n${metricsText}\n\nRecent sessions:\n${workoutText}\n\nFocus areas:\n${focusText}\n\nReadiness, sleep, HRV, and race goals: unavailable. Missing numeric load and intensity fields contribute zero to totals.`;
 }
 
 function fallbackReply(context: string, question: string) {
-  return `Live ChatGPT responses require configuring OPENAI_API_KEY.\n\nBased on current Garmin context:\n${context}\n\nSuggested next step: keep endurance load steady, prioritise sleep quality, and taper intensity three days before your key session. Question asked: "${question}".`;
+  return `Live ChatGPT responses require configuring OPENAI_API_KEY.\n\nBased on current Garmin context:\n${context}\n\nNo personalized recommendation was generated. Question asked: "${question}".`;
 }

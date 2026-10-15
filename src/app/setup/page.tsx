@@ -11,9 +11,10 @@ export default async function SetupPage() {
       <p>Choose sample data or connect your own GarminDB exports. Configuration stays on the server.</p>
       <dl className="grid gap-3 sm:grid-cols-2">
         <div><dt>Data source</dt><dd>{status.demo ? 'Synthetic demo' : 'Local Garmin exports'}</dd></div>
-        <div><dt>Activity files</dt><dd>{status.count} {status.demo ? 'samples' : 'summaries found'}</dd></div>
+        <div><dt>Activity files</dt><dd>{status.count} {status.demo ? 'samples' : 'valid summaries'}</dd></div>
         <div><dt>Route maps</dt><dd>{status.maps ? 'Token configured' : 'Optional token not configured'}</dd></div>
         <div><dt>AI coaching</dt><dd>{status.coach && !status.demo ? 'Key configured' : status.demo ? 'Offline demo guidance' : 'Offline fallback'}</dd></div>
+      <div><dt>Skipped summaries</dt><dd>{status.skipped} invalid, {status.duplicates} duplicates</dd></div>
       </dl>
       <section className="space-y-2"><h2 className="text-lg font-semibold">Explore sample data</h2>
         <p>Set <code>TRAINVIEW_DEMO_MODE=true</code> in your local .env file and restart the server. Demo mode reads neither personal exports nor monitoring records and does not call OpenAI. The sample GPS loop is fictional.</p>
@@ -27,7 +28,7 @@ export default async function SetupPage() {
         </ol>
         <p>Expected layout: <code>HealthData/FitFiles/Activities/activity_123.json</code> and optional <code>123_ACTIVITY.fit</code>.</p>
       </section>
-      <p>Real-mode AI coaching sends training summaries and questions to OpenAI when enabled. Maps contact Mapbox. Keep personal records out of public deployments. Current readiness and related values include estimates.</p>
+      <p>Real-mode AI coaching sends training summaries and questions to OpenAI when enabled. Maps contact Mapbox. Keep personal records out of public deployments. Readiness, HRV, sleep scores, and race goals are unavailable because they are not imported.</p>
       <Link href="/" className="inline-block underline">Open dashboard</Link>
     </section>
   );

@@ -34,7 +34,7 @@ export function MileageTrendChart({ data, className }: MileageTrendChartProps) {
       <CardHeader className="pb-4">
         <CardTitle>Weekly mileage trend</CardTitle>
         <CardDescription>
-          Distance and training load over the last eight weeks.
+          Distance and training load for the latest eight weeks containing activities.
         </CardDescription>
       </CardHeader>
       <CardContent className="h-full">

@@ -25,7 +25,7 @@ export function ReadinessLoadChart({ data, className }: ReadinessLoadChartProps)
       <CardHeader className="pb-4">
         <CardTitle>Heart rate vs. load</CardTitle>
         <CardDescription>
-          Daily average activity heart-rate compared with Garmin training load.
+          Daily average activity heart rate and summed recorded load, last 14 activity days.
         </CardDescription>
       </CardHeader>
       <CardContent className="h-full">
@@ -100,7 +100,7 @@ function ReadinessTooltip({ active, payload, label }: Partial<TooltipContentProp
           Avg HR {typeof heartRate?.value === 'number' ? heartRate.value.toFixed(0) : '--'} bpm
         </p>
         <p className="text-muted-foreground">
-          Acute load {typeof load?.value === 'number' ? load.value.toFixed(0) : '--'}
+          Daily load {typeof load?.value === 'number' ? load.value.toFixed(0) : '--'}
         </p>
       </div>
     </div>

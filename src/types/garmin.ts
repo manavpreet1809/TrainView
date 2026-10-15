@@ -35,18 +35,13 @@ export type WeeklyMileage = {
   elevationGain: number;
   longRunKm: number;
   trainingLoad: number;
-  readiness: number;
   activityCount: number;
 };
 
 export type ReadinessSnapshot = {
   date: string;
-  readiness: number;
-  hrv: number;
-  restingHeartRate: number;
-  sleepScore: number;
   acuteLoad: number;
-  avgHeartRate: number;
+  avgHeartRate: number | null;
 };
 
 export type IntensityRecord = {

@@ -51,11 +51,6 @@ export default async function DashboardPage() {
     latestReadiness && earliestReadiness
       ? latestReadiness.acuteLoad - earliestReadiness.acuteLoad
       : 0;
-  const readinessAverage =
-    readinessTrend.length > 0
-      ? readinessTrend.reduce((sum, entry) => sum + entry.readiness, 0) /
-        readinessTrend.length
-      : 0;
   const zone2 = heartZones.find(zone => zone.zone === 'Z2');
 
   return (
@@ -65,21 +60,21 @@ export default async function DashboardPage() {
       <section className="grid gap-4 md:grid-cols-3">
         <HighlightCard
           icon={<Gauge className="size-4" />}
-          title="Acute load delta"
+          title="Daily load difference"
           value={`${acuteDelta >= 0 ? '+' : ''}${acuteDelta.toFixed(0)}`}
-          description="Change in 7-day load from oldest to latest readiness entry."
+          description="Latest minus earliest daily load across the last 14 activity days."
         />
         <HighlightCard
           icon={<Flame className="size-4" />}
-          title="Readiness average"
-          value={`${readinessAverage.toFixed(0)}`}
-          description="Eight-day rolling average readiness from Garmin."
+          title="Training readiness"
+          value="Unavailable"
+          description="Readiness measurements are not imported; no score is inferred."
         />
         <HighlightCard
           icon={<Zap className="size-4" />}
           title="Zone 2 ratio"
           value={`${zone2?.percentage ?? 0}%`}
-          description="Time-in-zone across the last seven activities."
+          description="Time-in-zone across all imported activities."
         />
       </section>
 
