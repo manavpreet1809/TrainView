@@ -1,5 +1,7 @@
 'use client';
 
+import { RoutePreview } from './route-preview';
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Maximize2, Minimize2, Pause, Play, RotateCcw } from 'lucide-react';
@@ -30,6 +32,7 @@ export default function MapboxRouteMap({
   coordinates,
   className,
 }: MapboxRouteMapProps) {
+  const [mapError, setMapError] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const animationRef = useRef<number | undefined>(undefined);
@@ -142,6 +145,7 @@ export default function MapboxRouteMap({
     });
     mapRef.current = map;
 
+    map.on('error', () => setMapError(true));
     map.on('load', () => {
       if (!map.getSource(TERRAIN_SOURCE_ID)) {
         map.addSource(TERRAIN_SOURCE_ID, {
@@ -393,17 +397,8 @@ export default function MapboxRouteMap({
     }
   };
 
-  if (!accessToken) {
-    return (
-      <div
-        className={cn(
-          'flex min-h-[320px] w-full items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/40 text-xs text-muted-foreground',
-          className,
-        )}
-      >
-        Mapbox token missing. Set NEXT_PUBLIC_MAPBOX_TOKEN to enable 3D maps.
-      </div>
-    );
+  if (!accessToken || mapError) {
+    return <RoutePreview coordinates={coordinates} message={mapError ? 'Interactive map unavailable. Showing a local route preview.' : 'Showing a local route preview. Interactive maps are optional.'} />;
   }
 
   const hasRoute = lngLat.length > 1;
