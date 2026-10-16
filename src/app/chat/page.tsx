@@ -20,7 +20,7 @@ export default async function ChatPage() {
         <CardHeader className="space-y-3">
           <CardTitle className="text-2xl font-semibold">AI Coach</CardTitle>
           <CardDescription className="text-sm leading-relaxed">
-            Ask about pacing, recovery, or training strategy. Recorded training data · Weekly
+            Ask about your recorded workout history. Live mode sends your question and training summaries to OpenAI; GPS routes are excluded. Demo coaching stays offline. Recorded training data · Weekly
             distance {' '}
             
           </CardDescription>

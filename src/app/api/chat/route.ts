@@ -19,21 +19,22 @@ export async function POST(request: Request) {
 
   if (getDataConfig().demo) {
     return new NextResponse('TrainView demo: these workouts are synthetic. Explore the dashboard, workout details, and fictional route. Live AI coaching is disabled in demo mode.', {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
     });
   }
   const context = await buildContextSummary();
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
 
   if (!apiKey) {
     return new NextResponse(fallbackReply(context, userMessage), {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
     });
   }
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      signal: AbortSignal.any([request.signal, AbortSignal.timeout(30000)]),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -47,17 +48,17 @@ export async function POST(request: Request) {
           { role: 'system', content: SYSTEM_PROMPT },
           {
             role: 'user',
-            content: `${context}\n\nQuestion: ${userMessage.slice(0, 4000)}`,
+            content: `${context}\n\nQuestion: ${userMessage}`,
           },
         ],
       }),
     });
 
     if (!response.ok || !response.body) {
-      const errorText = await response.text();
-      console.error('[chat] OpenAI error', errorText);
+      await response.body?.cancel();
+      console.warn('[chat] Upstream request failed with status', response.status);
       return new NextResponse(fallbackReply(context, userMessage), {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
       });
     }
 
@@ -88,12 +89,12 @@ export async function POST(request: Request) {
     });
 
     return new NextResponse(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
     });
-  } catch (error) {
-    console.error('[chat] request failed', error);
+  } catch {
+    console.warn('[chat] Upstream request unavailable or timed out');
     return new NextResponse(fallbackReply(context, userMessage), {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
     });
   }
 }
@@ -129,5 +130,5 @@ async function buildContextSummary() {
 }
 
 function fallbackReply(context: string, question: string) {
-  return `Live ChatGPT responses require configuring OPENAI_API_KEY.\n\nBased on current Garmin context:\n${context}\n\nNo personalized recommendation was generated. Question asked: "${question}".`;
+  return `Live coaching is unavailable or not configured.\n\nBased on current Garmin context:\n${context}\n\nNo personalized recommendation was generated. Question asked: "${question}".`;
 }
