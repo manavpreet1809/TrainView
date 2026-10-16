@@ -1,0 +1,13 @@
+# GPS and coaching reliability
+
+This batch contains ten focused commits, covering route identifier validation and private cache headers; coordinate validation and bounded sampling; version-aware LRU caching; request cancellation and route retry; local SVG previews and map-error cleanup; bounded chat payload validation; SSE event parsing; upstream timeouts and privacy disclosures; client Stop behavior; and production verification with these documented limits.
+
+Routes accept numeric IDs or synthetic demo IDs only. FIT decoding uses the installed decoder's degree conversion, then rejects invalid coordinates and duplicate consecutive points. Sampling retains both endpoints and caps output at 750 points. Distance is a haversine approximation over sampled points, not a replacement for Garmin distance. The preview shows angular route shape without a basemap and does not represent elevation. The FIT size limit is 25 MiB; the cache keeps 32 tracks and invalidates when file size or modification time changes. Unavailable files are not negatively cached.
+
+Coaching accepts a string message of at most 4000 UTF-16 code units, with a 16 KiB body limit. Responses are private/no-store. Upstream requests time out after 30 seconds and receive client cancellation. The event parser handles fragmented events, comments, CRLF, refusal text, and final events, and marks incomplete streams rather than returning raw protocol data. Partial client answers survive cancellation and transport failure. No automatic retry can duplicate a billed request. Conversation history is displayed locally but is not sent as additional model context.
+
+Streaming implementation follows the [official Chat Completions streaming reference](https://developers.openai.com/api/reference/resources/chat/subresources/completions/streaming-events). Existing model selection remains unchanged.
+
+Verification passed: 22 tests, lint, strict TypeScript, production build, HTTP smoke checks, browser route-preview rendering without a token, and browser offline coaching. CI now starts a production demo server and runs HTTP regression checks. Tests cover route bounds, sampling endpoints, distance, cache eviction/invalidation, chat shapes and size limits, fragmented events, and invalid upstream events.
+
+Remaining validation: real FIT exports, successful paid OpenAI streams, real timeout/disconnect behavior through a hosting proxy, and live Mapbox terrain/playback. Demo checks do not prove these integrations work in production. Authentication and hosting-level rate limiting remain prerequisites for exposing personal data or paid coaching publicly. Stage 5 implementation is delivered; these live checks remain release work.

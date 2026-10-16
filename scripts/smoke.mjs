@@ -12,7 +12,7 @@ for (const route of ['/', '/workouts', '/chat', '/setup']) {
 const route = await fetch(new URL('/api/workouts/demo-01/map', base));
 assert.equal(route.status, 200);
 assert.equal((await route.json()).coordinates.length, 81);
-const missing = await fetch(new URL('/api/workouts/unknown/map', base));
+const missing = await fetch(new URL('/api/workouts/999999999/map', base));
 assert.deepEqual((await missing.json()).coordinates, []);
 const reply = await fetch(new URL('/api/chat', base), {
   method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -25,3 +25,14 @@ const invalid = await fetch(new URL('/api/chat', base), {
 });
 assert.equal(invalid.status, 400);
 console.log('Demo pages, route isolation, offline coaching, and validation passed.');
+
+for (const value of [null, [], {message: 4}, {message: ' '}]) {
+  const response = await fetch(new URL('/api/chat', base), {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(value)});
+  assert.equal(response.status, 400);
+}
+const oversized = await fetch(new URL('/api/chat', base), {method: 'POST', body: JSON.stringify({message:'x'.repeat(4001)})});
+assert.equal(oversized.status, 413);
+const unsafe = await fetch(new URL('/api/workouts/not-an-id/map', base));
+assert.equal(unsafe.status, 400);
+assert.match(route.headers.get('cache-control'), /no-store/);
+console.log('Invalid chat shapes, oversized messages, route validation and private cache headers passed.');

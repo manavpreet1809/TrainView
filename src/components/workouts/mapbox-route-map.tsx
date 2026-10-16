@@ -129,11 +129,12 @@ export default function MapboxRouteMap({
   );
 
   useEffect(() => {
-    if (!containerRef.current || !lngLat.length || !accessToken) {
+    if (!containerRef.current || !lngLat.length || !accessToken || mapError) {
       return;
     }
 
-    const map = new mapboxgl.Map({
+    let map: mapboxgl.Map;
+    try { map = new mapboxgl.Map({
       container: containerRef.current,
       style: MAP_STYLE,
       center: [lngLat[0][0], lngLat[0][1]],
@@ -142,7 +143,7 @@ export default function MapboxRouteMap({
       bearing: -20,
       cooperativeGestures: true,
       antialias: true,
-    });
+    }); } catch { setMapError(true); return; }
     mapRef.current = map;
 
     map.on('error', () => setMapError(true));
@@ -260,7 +261,7 @@ export default function MapboxRouteMap({
       mapRef.current = null;
       cancelAnimationFrame(animationRef.current ?? 0);
     };
-  }, [lngLat]);
+  }, [lngLat, mapError]);
 
   useEffect(() => {
     const map = mapRef.current;

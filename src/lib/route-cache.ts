@@ -1,6 +1,7 @@
 export class RouteCache<T> {
   private entries = new Map<string,{version:string; value:T}>();
-  constructor(private limit = 32) { if (!Number.isInteger(limit) || limit < 1) throw new Error('Invalid cache limit'); }
+  private limit: number;
+  constructor(limit = 32) { if (!Number.isInteger(limit) || limit < 1) throw new Error('Invalid cache limit'); this.limit = limit; }
   get(key: string, version: string) {
     const entry=this.entries.get(key);
     if (!entry || entry.version !== version) { this.entries.delete(key); return undefined; }

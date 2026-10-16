@@ -19,3 +19,4 @@ jobs:
       - run: npm run build
         env:
           TRAINVIEW_DEMO_MODE: true
+      - run: npm run test:production

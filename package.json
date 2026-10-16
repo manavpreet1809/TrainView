@@ -14,7 +14,8 @@
     "postinstall": "prisma generate",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "dev:demo": "TRAINVIEW_DEMO_MODE=true next dev",
-    "test:smoke": "node scripts/smoke.mjs"
+    "test:smoke": "node scripts/smoke.mjs",
+    "test:production": "node scripts/verify-production.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",

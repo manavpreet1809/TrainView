@@ -1,5 +1,6 @@
 export class ChatInputError extends Error {
-  constructor(message: string, public status = 400) { super(message); }
+  status: number;
+  constructor(message: string, status = 400) { super(message); this.status = status; }
 }
 export async function readChatMessage(request: Request) {
   const reader=request.body?.getReader();

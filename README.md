@@ -25,8 +25,8 @@ Export your own records using GarminDB separately, then set `GARMIN_DATA_ROOT` t
 ## Features
 
 - Distance, training load, intensity, and heart-rate dashboards
-- Searchable workout history with activity/date filters, accessible sorting, session details, and Mapbox GPS routes
-- Optional streaming AI coaching
+- Searchable workout history with activity/date filters, accessible sorting, session details, and GPS routes with a local preview when interactive maps are unavailable
+- Optional streaming AI coaching with a Stop action, request validation, and timeouts
 - Responsive interface with light and dark themes
 
 ## Data accuracy and privacy
@@ -42,6 +42,7 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+npm run test:production
 npm start
 ```
 
