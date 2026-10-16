@@ -1,3 +1,4 @@
+import { readChatMessage, ChatInputError } from '@/lib/chat-request';
 import { getDataConfig } from '@/lib/data-config';
 import { NextResponse } from 'next/server';
 import {
@@ -8,23 +9,11 @@ import {
 
 const SYSTEM_PROMPT = `You are TrainView AI, an expert endurance coach who personalises guidance using Garmin Connect metrics. Use the provided context only. Discuss recorded load and heart-rate zones only when available. Readiness, HRV, resting heart rate, sleep, and race goals are unavailable. Do not invent measurements or goals.`;
 
-type ChatRequestBody = {
-  message?: string;
-};
-
 export async function POST(request: Request) {
-  let payload: ChatRequestBody;
-
-  try {
-    payload = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON payload.' }, { status: 400 });
-  }
-
-  const userMessage = payload.message?.trim();
-
-  if (!userMessage) {
-    return NextResponse.json({ error: 'Message is required.' }, { status: 400 });
+  let userMessage: string;
+  try { userMessage = await readChatMessage(request); }
+  catch (error) {
+    return NextResponse.json({ error: error instanceof ChatInputError ? error.message : 'Unable to read request.' }, { status: error instanceof ChatInputError ? error.status : 400 });
   }
 
   if (getDataConfig().demo) {
