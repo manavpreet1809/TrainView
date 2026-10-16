@@ -2,6 +2,8 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { normalizeRoute } from '@/lib/route-geometry';
 import { cn } from '@/lib/utils';
 
 const RouteMap3D = dynamic(() => import('./mapbox-route-map'), {
@@ -18,6 +20,7 @@ type CoordinatesResponse = {
 };
 
 export function ActivityMap({ activityId, className }: ActivityMapProps) {
+  const [retry, setRetry] = useState(0);
   const [coordinates, setCoordinates] = useState<
     [number, number, number][] | null
   >(null);
@@ -27,6 +30,7 @@ export function ActivityMap({ activityId, className }: ActivityMapProps) {
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
 
     async function loadCoordinates() {
       if (!activityId) {
@@ -37,7 +41,7 @@ export function ActivityMap({ activityId, className }: ActivityMapProps) {
 
       try {
         setStatus('loading');
-        const response = await fetch(`/api/workouts/${activityId}/map`);
+        const response = await fetch(`/api/workouts/${encodeURIComponent(activityId)}/map`, { signal: controller.signal });
         if (!response.ok) {
           throw new Error(`Failed to load map for activity ${activityId}`);
         }
@@ -46,11 +50,11 @@ export function ActivityMap({ activityId, className }: ActivityMapProps) {
         if (cancelled) return;
 
         const coords = Array.isArray(data.coordinates)
-          ? (data.coordinates as [number, number, number][])
+          ? normalizeRoute(data.coordinates)
           : [];
 
         setCoordinates(coords);
-        setStatus(coords.length > 0 ? 'idle' : 'empty');
+        setStatus(coords.length > 1 ? 'idle' : 'empty');
       } catch (error) {
         if (!cancelled) {
           console.warn('[ActivityMap] Unable to load coordinates', error);
@@ -64,8 +68,9 @@ export function ActivityMap({ activityId, className }: ActivityMapProps) {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [activityId]);
+  }, [activityId, retry]);
 
   if (status === 'loading') {
     return (
@@ -88,7 +93,7 @@ export function ActivityMap({ activityId, className }: ActivityMapProps) {
           className,
         )}
       >
-        Unable to load map for this activity.
+        <div className="space-y-3 text-center"><p role="alert">Unable to load map for this activity.</p><Button variant="outline" onClick={() => setRetry(value => value+1)}>Retry route</Button></div>
       </div>
     );
   }
