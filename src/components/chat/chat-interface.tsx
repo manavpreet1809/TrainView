@@ -34,6 +34,8 @@ export function ChatInterface({ context, endpoint = '/api/chat' }: ChatInterface
   ]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => requestRef.current?.abort(), []);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -66,8 +68,11 @@ export function ChatInterface({ context, endpoint = '/api/chat' }: ChatInterface
     setInput('');
     setIsThinking(true);
 
+    const requestController = new AbortController();
+    requestRef.current = requestController;
     try {
       const response = await fetch(endpoint, {
+        signal: requestController.signal,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: prompt }),
@@ -79,7 +84,7 @@ export function ChatInterface({ context, endpoint = '/api/chat' }: ChatInterface
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-
+      try {
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -111,18 +116,20 @@ export function ChatInterface({ context, endpoint = '/api/chat' }: ChatInterface
           message.id === assistantId ? { ...message, streaming: false } : message,
         ),
       );
-      reader.releaseLock();
-    } catch (error) {
-      console.error('[chat] assistant request failed', error);
+      } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
+    } catch {
+      const stopped = requestController.signal.aborted;
+      if (!stopped) console.warn('[chat] assistant request failed');
       const fallback = `${buildPlaceholderReply(prompt, context)}\n\n(Enable OPENAI_API_KEY to receive live answers.)`;
       setMessages(prev =>
         prev.map(message =>
           message.id === assistantId
-            ? { ...message, content: fallback, streaming: false }
+            ? { ...message, content: stopped ? `${message.content}\n\nResponse stopped.` : message.content ? `${message.content}\n\nResponse interrupted. Try again.` : fallback, streaming: false }
             : message,
         ),
       );
     } finally {
+      requestRef.current = null;
       setIsThinking(false);
     }
   };
@@ -130,6 +137,7 @@ export function ChatInterface({ context, endpoint = '/api/chat' }: ChatInterface
   return (
     <div className="flex flex-col gap-4 p-4">
       <div
+        role="log" aria-label="Coaching conversation" aria-live="polite"
         ref={containerRef}
         className="h-[480px] overflow-y-auto rounded-xl border border-border/50 bg-background p-5"
       >
@@ -145,12 +153,15 @@ export function ChatInterface({ context, endpoint = '/api/chat' }: ChatInterface
         className="flex items-end gap-3 rounded-xl border border-border/60 bg-background p-4"
       >
         <Textarea
+          aria-label="Message your coach"
+          maxLength={4000}
           value={input}
           onChange={event => setInput(event.target.value)}
           placeholder="Ask your coach…"
           className="flex-1 resize-none border-none p-0 shadow-none focus-visible:ring-0"
           rows={3}
         />
+        {isThinking && <Button type="button" variant="outline" onClick={() => requestRef.current?.abort()}>Stop</Button>}
         <Button type="submit" disabled={!input.trim() || isThinking}>
           <SendHorizonal className="mr-2 size-4" />
           Send
