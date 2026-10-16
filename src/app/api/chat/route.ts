@@ -1,3 +1,4 @@
+import { ChatEventParser } from '@/lib/chat-stream';
 import { readChatMessage, ChatInputError } from '@/lib/chat-request';
 import { getDataConfig } from '@/lib/data-config';
 import { NextResponse } from 'next/server';
@@ -62,53 +63,28 @@ export async function POST(request: Request) {
 
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
-
+    const reader = response.body.getReader();
+    let cancelled = false;
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
-        const reader = response.body!.getReader();
-        let buffer = '';
+        const parser = new ChatEventParser();
         try {
-          while (true) {
+          while (!parser.done && !cancelled) {
             const { value, done } = await reader.read();
+            const text = done ? decoder.decode() : decoder.decode(value, { stream: true });
+            for (const content of parser.feed(text, done)) controller.enqueue(encoder.encode(content));
             if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() ?? '';
-
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed || trimmed.startsWith(':')) continue;
-              if (trimmed === 'data: [DONE]') {
-                controller.close();
-                return;
-              }
-              if (!trimmed.startsWith('data:')) continue;
-              try {
-                const json = JSON.parse(trimmed.slice(5));
-                const content = json.choices?.[0]?.delta?.content;
-                if (content) {
-                  controller.enqueue(encoder.encode(content));
-                }
-              } catch (error) {
-                console.error('[chat] stream parse error', error);
-              }
-            }
           }
-
-          if (buffer) {
-            controller.enqueue(encoder.encode(buffer));
-          }
-          controller.close();
-        } catch (error) {
-          console.error('[chat] stream failure', error);
-          controller.enqueue(
-            encoder.encode(fallbackReply(context, userMessage)),
-          );
-          controller.close();
+          if (!parser.done && !cancelled) throw new Error('Incomplete upstream response');
+        } catch {
+          if (!cancelled) controller.enqueue(encoder.encode('\n\nThe coaching response was interrupted. This answer may be incomplete; please try again.'));
         } finally {
+          await reader.cancel().catch(() => {});
           reader.releaseLock();
+          if (!cancelled) controller.close();
         }
       },
+      async cancel() { cancelled = true; await reader.cancel().catch(() => {}); },
     });
 
     return new NextResponse(stream, {
