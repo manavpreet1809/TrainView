@@ -1,3 +1,4 @@
+import { RouteCache } from './route-cache';
 import { normalizeRoute } from './route-geometry';
 import { isRouteId } from './route-id';
 import { readActivityImport } from './activity-import';
@@ -517,7 +518,7 @@ export const getWorkouts = cache(async (): Promise<Workout[]> => {
 
 type RoutePoint = [number, number, number];
 
-const coordinatesCache = new Map<string, RoutePoint[]>();
+const coordinatesCache = new RouteCache<RoutePoint[]>();
 
 export async function getActivityCoordinates(
   activityId: string,
@@ -528,10 +529,6 @@ export async function getActivityCoordinates(
     return [];
   }
 
-  if (coordinatesCache.has(activityId)) {
-    return coordinatesCache.get(activityId) ?? [];
-  }
-
   const fitPath = path.join(
     DATA_ROOT,
     'FitFiles',
@@ -540,6 +537,11 @@ export async function getActivityCoordinates(
   );
 
   try {
+    const stat = await fs.stat(fitPath);
+    if (stat.size > 25 * 1024 * 1024) return [];
+    const version = `${stat.mtimeMs}:${stat.size}`;
+    const cached = coordinatesCache.get(fitPath, version);
+    if (cached) return cached;
     const file = await fs.readFile(fitPath);
     const arrayBuffer = file.buffer.slice(
       file.byteOffset ?? 0,
@@ -576,18 +578,17 @@ export async function getActivityCoordinates(
     }
 
     if (coordinates.length === 0) {
-      coordinatesCache.set(activityId, []);
+      coordinatesCache.set(fitPath, version, []);
       return [];
     }
 
     const simplified = normalizeRoute(coordinates);
-    coordinatesCache.set(activityId, simplified);
+    coordinatesCache.set(fitPath, version, simplified);
     return simplified;
   } catch (error) {
     if ((error as NodeJS.ErrnoException)?.code !== 'ENOENT') {
       console.warn('[garmin-data] Failed to load route for activity', activityId, error);
     }
-    coordinatesCache.set(activityId, []);
     return [];
   }
 }
