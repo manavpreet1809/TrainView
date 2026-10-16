@@ -1,3 +1,4 @@
+import { isRouteId } from '@/lib/route-id';
 import { NextResponse } from 'next/server';
 import { getActivityCoordinates } from '@/lib/garmin-data';
 
@@ -11,14 +12,14 @@ export async function GET(_request: Request, context: RouteParams) {
   const params = (await context.params) ?? {};
   const { id } = params as { id?: string };
 
-  if (!id) {
+  if (!isRouteId(id)) {
     return NextResponse.json(
-      { error: 'Activity ID is required' },
+      { error: 'A valid activity ID is required' },
       { status: 400 },
     );
   }
 
   const coordinates = await getActivityCoordinates(id);
 
-  return NextResponse.json({ coordinates });
+  return NextResponse.json({ coordinates }, { headers: { 'Cache-Control': 'private, no-store' } });
 }

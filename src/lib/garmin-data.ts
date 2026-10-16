@@ -1,3 +1,4 @@
+import { isRouteId } from './route-id';
 import { readActivityImport } from './activity-import';
 import { localDateKey, formatPace, mean } from './metric-utils';
 import { getDataConfig } from './data-config';
@@ -520,6 +521,7 @@ const coordinatesCache = new Map<string, RoutePoint[]>();
 export async function getActivityCoordinates(
   activityId: string,
 ): Promise<RoutePoint[]> {
+  if (!isRouteId(activityId)) return [];
   if (getDataConfig().demo) return getDemoCoordinates(activityId);
   if (!activityId) {
     return [];
