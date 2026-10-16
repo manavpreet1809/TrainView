@@ -21,22 +21,27 @@ type SleepQualityChartProps = {
 };
 
 export function SleepQualityChart({ data, className }: SleepQualityChartProps) {
+  if (!data.length) return (
+    <Card className={className}><CardHeader><CardTitle>Training chart unavailable</CardTitle></CardHeader>
+      <CardContent><p className="text-sm text-muted-foreground">No records are available for this chart. Import activities with the relevant metrics or explore demo mode.</p></CardContent>
+    </Card>
+  );
   const formatted = data.map(entry => ({
     ...entry,
-    label: new Date(entry.date).toLocaleDateString(undefined, {
+    label: new Date(`${entry.date}T00:00:00`).toLocaleDateString(undefined, {
       weekday: 'short',
     }),
   }));
 
   return (
-    <Card className={cn('h-[360px]', className)}>
+    <Card className={cn('min-h-[360px]', className)}>
       <CardHeader className="pb-4">
         <CardTitle>Intensity minutes</CardTitle>
         <CardDescription>
           Garmin moderate and vigorous intensity minutes grouped by day.
         </CardDescription>
       </CardHeader>
-      <CardContent className="h-full">
+      <CardContent className="h-[280px] pb-6">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={formatted} margin={{ top: 12, left: 0, right: 12, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />

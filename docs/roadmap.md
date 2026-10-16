@@ -2,8 +2,8 @@
 
 1. Foundation (complete).
 2. Demo and onboarding (complete).
-3. Data reliability and accuracy.
-4. Complete dashboard and workout workflows.
+3. Data reliability and accuracy (complete).
+4. Complete dashboard and workout workflows (complete).
 5. Verify GPS maps and AI coaching.
 6. Release preparation.
 

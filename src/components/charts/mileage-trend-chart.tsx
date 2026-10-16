@@ -21,23 +21,28 @@ type MileageTrendChartProps = {
 };
 
 export function MileageTrendChart({ data, className }: MileageTrendChartProps) {
+  if (!data.length) return (
+    <Card className={className}><CardHeader><CardTitle>Training chart unavailable</CardTitle></CardHeader>
+      <CardContent><p className="text-sm text-muted-foreground">No records are available for this chart. Import activities with the relevant metrics or explore demo mode.</p></CardContent>
+    </Card>
+  );
   const formatted = data.map(entry => ({
     ...entry,
-    label: new Date(entry.week).toLocaleDateString(undefined, {
+    label: new Date(`${entry.week}T00:00:00`).toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
     }),
   }));
 
   return (
-    <Card className={cn('h-[360px]', className)}>
+    <Card className={cn('min-h-[360px]', className)}>
       <CardHeader className="pb-4">
         <CardTitle>Weekly mileage trend</CardTitle>
         <CardDescription>
           Distance and training load for the latest eight weeks containing activities.
         </CardDescription>
       </CardHeader>
-      <CardContent className="h-full">
+      <CardContent className="h-[280px] pb-6">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={formatted} margin={{ left: 12, right: 12, top: 12, bottom: 12 }}>
             <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="4 8" />

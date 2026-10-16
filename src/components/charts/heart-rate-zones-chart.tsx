@@ -14,15 +14,20 @@ type HeartRateZonesChartProps = {
 const COLORS = ['dodgerblue', 'mediumseagreen', 'goldenrod', 'tomato', 'mediumpurple'];
 
 export function HeartRateZonesChart({ data, className }: HeartRateZonesChartProps) {
+  if (!data.length) return (
+    <Card className={className}><CardHeader><CardTitle>Training chart unavailable</CardTitle></CardHeader>
+      <CardContent><p className="text-sm text-muted-foreground">No records are available for this chart. Import activities with the relevant metrics or explore demo mode.</p></CardContent>
+    </Card>
+  );
   return (
-    <Card className={cn('h-[360px]', className)}>
+    <Card className={cn('min-h-[360px]', className)}>
       <CardHeader className="pb-4">
         <CardTitle>Heart-rate distribution</CardTitle>
         <CardDescription>
           Time-in-zone captured across all imported activities.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex h-full flex-col">
+      <CardContent className="flex h-[280px] flex-col pb-6">
         <div className="flex-1">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>

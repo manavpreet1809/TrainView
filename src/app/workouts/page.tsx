@@ -1,8 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { WorkoutTable } from '@/components/workouts/workout-table';
 import { getWorkoutSummary, getWorkouts } from '@/lib/garmin-data';
@@ -18,15 +16,6 @@ export default async function WorkoutsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <Input
-          placeholder="Search by workout, location, or tag…"
-          className="w-full max-w-xs"
-        />
-        <Button variant="outline">Filters</Button>
-        {/* <Button variant="outline">Export</Button> */}
-      </div>
-
       <section className="grid gap-4 lg:grid-cols-4">
         <Card>
           <CardHeader>
@@ -34,7 +23,7 @@ export default async function WorkoutsPage() {
               Last 7 days distance
             </CardTitle>
             <CardDescription>
-              Based on synced Garmin runs, rides, and cross training.
+              Recorded activities from the last seven calendar days, through now.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -42,7 +31,7 @@ export default async function WorkoutsPage() {
               {summary.weekDistance.toFixed(1)} km
             </p>
             <p className="text-xs text-muted-foreground">
-              Longest session{' '}
+              Longest session across all imports{' '}
               {longestSession
                 ? `${longestSession.distanceKm.toFixed(1)} km`
                 : '—'}
@@ -55,7 +44,7 @@ export default async function WorkoutsPage() {
               Total duration
             </CardTitle>
             <CardDescription>
-              Cumulative training time in the current block.
+              Cumulative training time across all imported activities.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -70,10 +59,10 @@ export default async function WorkoutsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Quality sessions
+              Higher-load sessions
             </CardTitle>
             <CardDescription>
-              Workouts with training load &ge; 130 in the last 14 days.
+              All imported workouts with recorded training load &ge; 130.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -81,14 +70,14 @@ export default async function WorkoutsPage() {
               {summary.qualitySessions}
             </p>
             <p className="text-xs text-muted-foreground">
-              Keep 2–3 key workouts per week for freshness.
+              Count uses the recorded load threshold, not a quality assessment.
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Longest run
+              Longest activity
             </CardTitle>
             <CardDescription>
               {longestSession?.title ?? 'No activities yet'}
@@ -124,7 +113,7 @@ export default async function WorkoutsPage() {
         <CardHeader>
           <CardTitle>Workout log</CardTitle>
           <CardDescription>
-            Explore rich Garmin session details with splits and training load.
+            Search and filter imported workouts, then open recorded metrics and available routes.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

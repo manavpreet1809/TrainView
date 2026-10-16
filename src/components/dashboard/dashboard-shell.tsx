@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   },
   {
     title: 'Workouts',
-    description: 'Detailed log with splits, effort, and notes.',
+    description: 'Search workouts and inspect recorded session metrics.',
     href: '/workouts',
     icon: Activity,
   },
@@ -101,6 +101,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                   <TooltipTrigger asChild>
                     <Link
                       href={item.href}
+                      aria-current={isActive ? 'page' : undefined}
+                      aria-label={isCollapsed ? item.title : undefined}
                       className={cn(
                         'group flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-all',
                         isActive
@@ -131,7 +133,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           
         </aside>
 
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-16 items-center border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/0">
             <div className="flex flex-1 items-center gap-3 px-4 md:px-6">
               <DropdownMenu>
@@ -162,9 +164,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
               <div className="ml-auto flex items-center gap-2">
                 <ThemeToggle />
-                <Button variant="outline" size="sm" className="hidden md:flex">
-                  Export data
-                </Button>
+
                 
               </div>
             </div>

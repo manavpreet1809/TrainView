@@ -25,7 +25,7 @@ Export your own records using GarminDB separately, then set `GARMIN_DATA_ROOT` t
 ## Features
 
 - Distance, training load, intensity, and heart-rate dashboards
-- Sortable workout history and Mapbox GPS routes
+- Searchable workout history with activity/date filters, accessible sorting, session details, and Mapbox GPS routes
 - Optional streaming AI coaching
 - Responsive interface with light and dark themes
 

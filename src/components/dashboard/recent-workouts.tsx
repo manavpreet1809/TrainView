@@ -27,6 +27,7 @@ export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {!workouts.length && <p className="text-sm text-muted-foreground">No sessions yet. Use Data setup to connect exports or explore demo mode.</p>}
           {workouts.map(workout => (
             <article
               key={workout.id}
@@ -57,10 +58,7 @@ export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
                   {Math.round(workout.durationMinutes)} min
                 </InfoChip>
                 <InfoChip icon={<Flame className="size-3.5" />} label="Load">
-                  {workout.trainingLoad ?? Math.round(
-                    (workout.moderateMinutes ?? 0) +
-                      (workout.vigorousMinutes ?? 0),
-                  )}
+                  {workout.trainingLoad ?? '—'}
                 </InfoChip>
                 <InfoChip icon={<Activity className="size-3.5" />} label="Type">
                   {workout.type}

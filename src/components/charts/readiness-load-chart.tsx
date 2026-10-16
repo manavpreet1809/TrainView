@@ -12,23 +12,28 @@ type ReadinessLoadChartProps = {
 };
 
 export function ReadinessLoadChart({ data, className }: ReadinessLoadChartProps) {
+  if (!data.length) return (
+    <Card className={className}><CardHeader><CardTitle>Training chart unavailable</CardTitle></CardHeader>
+      <CardContent><p className="text-sm text-muted-foreground">No records are available for this chart. Import activities with the relevant metrics or explore demo mode.</p></CardContent>
+    </Card>
+  );
   const formatted = data.map(entry => ({
     ...entry,
-    label: new Date(entry.date).toLocaleDateString(undefined, {
+    label: new Date(`${entry.date}T00:00:00`).toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
     }),
   }));
 
   return (
-    <Card className={cn('h-[360px]', className)}>
+    <Card className={cn('min-h-[360px]', className)}>
       <CardHeader className="pb-4">
         <CardTitle>Heart rate vs. load</CardTitle>
         <CardDescription>
           Daily average activity heart rate and summed recorded load, last 14 activity days.
         </CardDescription>
       </CardHeader>
-      <CardContent className="h-full">
+      <CardContent className="h-[280px] pb-6">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={formatted} margin={{ top: 12, right: 16, bottom: 12, left: 0 }}>
             <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="4 6" />
