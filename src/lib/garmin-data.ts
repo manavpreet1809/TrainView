@@ -1,3 +1,4 @@
+import { normalizeRoute } from './route-geometry';
 import { isRouteId } from './route-id';
 import { readActivityImport } from './activity-import';
 import { localDateKey, formatPace, mean } from './metric-utils';
@@ -579,19 +580,7 @@ export async function getActivityCoordinates(
       return [];
     }
 
-    const stride = Math.max(1, Math.floor(coordinates.length / 750));
-    const simplified: RoutePoint[] = coordinates.filter(
-      (_, index) => index % stride === 0,
-    );
-    const last = coordinates[coordinates.length - 1];
-    const lastSimplified = simplified[simplified.length - 1];
-    if (
-      last &&
-      (!lastSimplified || lastSimplified[0] !== last[0] || lastSimplified[1] !== last[1])
-    ) {
-      simplified.push(last);
-    }
-
+    const simplified = normalizeRoute(coordinates);
     coordinatesCache.set(activityId, simplified);
     return simplified;
   } catch (error) {
