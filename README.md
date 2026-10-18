@@ -18,6 +18,10 @@ Open http://localhost:3000. Without imported activities, the dashboard shows emp
 
 Run `npm run dev:demo` to explore synthetic workouts and steps without Garmin exports. Visit `/setup` for configuration status and import instructions. Demo AI coaching stays offline, and its GPS route is fictional. See [demo mode](docs/demo.md).
 
+## Run the packaged demo
+
+With Docker running, use `docker compose up --build --wait` and open http://localhost:3000. It uses synthetic data and needs no Garmin account or API keys. See [deployment](docs/deployment.md) for standalone Node packaging and verification limits.
+
 ## Garmin data
 
 Export your own records using GarminDB separately, then set `GARMIN_DATA_ROOT` to its HealthData directory. TrainView reads `FitFiles/Activities/activity_<id>.json` summaries and `<id>_ACTIVITY.fit` routes. Monitoring tables use the SQLite database selected by `DATABASE_URL`; a fresh database contains no records. TrainView does not log in to Garmin or automatically synchronize your watch.
@@ -25,7 +29,7 @@ Export your own records using GarminDB separately, then set `GARMIN_DATA_ROOT` t
 ## Features
 
 - Distance, training load, intensity, and heart-rate dashboards
-- Searchable workout history with activity/date filters, accessible sorting, session details, and GPS routes with a local preview when interactive maps are unavailable
+- Searchable workout history with activity/date filters, accessible sorting, session details, filtered CSV export, and GPS routes with a local preview when interactive maps are unavailable
 - Optional streaming AI coaching with a Stop action, request validation, and timeouts
 - Responsive interface with light and dark themes
 
@@ -43,7 +47,8 @@ npm run typecheck
 npm test
 npm run build
 npm run test:production
+npm run test:standalone
 npm start
 ```
 
-See [configuration](docs/configuration.md), [architecture](docs/architecture.md), and [roadmap](docs/roadmap.md).
+See [workout export](docs/workout-export.md), [deployment](docs/deployment.md), [configuration](docs/configuration.md), [architecture](docs/architecture.md), and [roadmap](docs/roadmap.md).

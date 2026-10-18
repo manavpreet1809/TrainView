@@ -15,7 +15,9 @@
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "dev:demo": "TRAINVIEW_DEMO_MODE=true next dev",
     "test:smoke": "node scripts/smoke.mjs",
-    "test:production": "node scripts/verify-production.mjs"
+    "test:production": "node scripts/verify-production.mjs",
+    "package:standalone": "node scripts/package-standalone.mjs",
+    "test:standalone": "npm run package:standalone && node scripts/verify-production.mjs --standalone"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",

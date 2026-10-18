@@ -20,3 +20,14 @@ jobs:
         env:
           TRAINVIEW_DEMO_MODE: true
       - run: npm run test:production
+      - run: npm run test:standalone
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up --build --wait --wait-timeout 120
+      - run: |
+          curl --fail http://127.0.0.1:3000/api/health
+          curl --fail http://127.0.0.1:3000/workouts > /dev/null
+      - if: always()
+        run: docker compose down

@@ -1,5 +1,6 @@
 'use client';
 
+
 import { useMemo, useState } from 'react';
 import { queryWorkouts, type SortKey } from '@/lib/workout-query';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,10 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
   const sortedWorkouts = useMemo(() => queryWorkouts(workouts, {
     search, type, from, to, sort: sortKey, direction: sortDirection,
   }), [workouts, search, type, from, to, sortKey, sortDirection]);
+  const exportFiltered = () => {
+    const params = new URLSearchParams({search, type, from, to, sort: sortKey, direction: sortDirection});
+    window.location.assign(`/api/workouts/export?${params}`);
+  };
   const clearFilters = () => { setSearch(''); setType(''); setFrom(''); setTo(''); };
 
   const selectedWorkout = sortedWorkouts.find(
@@ -69,6 +74,7 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
       {invalidRange && <p id="date-range-error" role="alert" className="text-sm text-destructive">From date must be on or before to date.</p>}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p role="status" className="text-sm text-muted-foreground">{sortedWorkouts.length} of {workouts.length} workouts. Summary cards describe all imported activities.</p>
+        <Button type="button" variant="outline" onClick={exportFiltered} disabled={!sortedWorkouts.length}>Export filtered CSV</Button>
         <Button type="button" variant="outline" onClick={clearFilters} disabled={!search && !type && !from && !to}>Clear filters</Button>
       </div>
       <div className="overflow-x-auto rounded-2xl border border-border/70" role="region" aria-label="Workout log table" tabIndex={0}>

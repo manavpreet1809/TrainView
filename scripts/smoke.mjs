@@ -36,3 +36,24 @@ const unsafe = await fetch(new URL('/api/workouts/not-an-id/map', base));
 assert.equal(unsafe.status, 400);
 assert.match(route.headers.get('cache-control'), /no-store/);
 console.log('Invalid chat shapes, oversized messages, route validation and private cache headers passed.');
+
+const health = await fetch(new URL('/api/health', base));
+assert.equal(health.status, 200);
+assert.deepEqual(await health.json(), {status:'ok', mode:'demo'});
+assert.equal(health.headers.get('cache-control'), 'no-store');
+const workoutPage = await fetch(new URL('/workouts', base));
+assert.match(await workoutPage.text(), /Export filtered CSV/);
+console.log('Health endpoint and filtered export control passed.');
+
+const csvExport = await fetch(new URL('/api/workouts/export?type=cycling&sort=distanceKm&direction=desc',base));
+assert.equal(csvExport.status,200);
+assert.match(csvExport.headers.get('content-disposition'), /attachment/);
+assert.match(csvExport.headers.get('cache-control'), /no-store/);
+const csv = await csvExport.text();
+const rows = csv.trim().split('\r\n');
+assert.equal(rows.length,5);
+assert.ok(rows.slice(1).every(row=>row.includes('"cycling"')));
+assert.ok(rows[1].includes('"10"'));
+const badExport = await fetch(new URL('/api/workouts/export?sort=invalid',base));
+assert.equal(badExport.status,400);
+console.log('Filtered CSV attachment, row count, sorting, privacy headers, and filter validation passed.');

@@ -1,0 +1,10 @@
+services:
+  trainview:
+    build: .
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      TRAINVIEW_DEMO_MODE: "true"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true

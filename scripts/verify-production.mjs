@@ -1,10 +1,11 @@
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 
-const port = '3104';
+const standalone = process.argv.includes('--standalone');
+const port = standalone ? '3105' : '3104';
 const base = `http://127.0.0.1:${port}`;
-const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', port], {
-  env: {...process.env, TRAINVIEW_DEMO_MODE:'true'}, stdio:'inherit',
+const server = spawn(process.execPath, standalone ? ['.next/standalone/server.js'] : ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', port], {
+  env: {...process.env, TRAINVIEW_DEMO_MODE:'true', PORT:port, HOSTNAME:'127.0.0.1'}, stdio:'inherit',
 });
 try {
   let ready = false;
