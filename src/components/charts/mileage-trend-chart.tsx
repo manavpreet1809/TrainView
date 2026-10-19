@@ -1,5 +1,7 @@
 'use client';
 
+import { ChartDataTable } from './chart-data-table';
+
 import {
   CartesianGrid,
   Legend,
@@ -39,7 +41,7 @@ export function MileageTrendChart({ data, className }: MileageTrendChartProps) {
       <CardHeader className="pb-4">
         <CardTitle>Weekly mileage trend</CardTitle>
         <CardDescription>
-          Distance and training load for the latest eight weeks containing activities.
+          Distance and recorded load for eight calendar weeks, including the current partial week. Empty weeks show zero recorded activity.
         </CardDescription>
       </CardHeader>
       <CardContent className="h-[280px] pb-6">
@@ -93,6 +95,7 @@ export function MileageTrendChart({ data, className }: MileageTrendChartProps) {
           </LineChart>
         </ResponsiveContainer>
       </CardContent>
+      <CardContent><ChartDataTable caption="Weekly recorded training data" headers={["Week starting Monday","Distance (km)","Recorded load","Activities"]} rows={data.map(entry => [entry.week, entry.distanceKm, entry.trainingLoad, entry.activityCount])} /></CardContent>
     </Card>
   );
 }

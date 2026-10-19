@@ -7,7 +7,13 @@ for (const route of ['/', '/workouts', '/chat', '/setup']) {
   const html = await response.text();
   assert.match(html, /Demo mode: all workouts/);
   assert.doesNotMatch(html, /readiness score of|Eight-day rolling average|NaN/);
-  if (route === '/') assert.match(html, /no score is inferred/);
+  if (route === '/') {
+    assert.match(html, /no score is inferred/);
+    assert.match(html, /eight calendar weeks/);
+    assert.match(html, /14 calendar days/);
+    assert.match(html, /View chart data/);
+    assert.match(html, /Average session HR/);
+  }
 }
 const route = await fetch(new URL('/api/workouts/demo-01/map', base));
 assert.equal(route.status, 200);
@@ -57,3 +63,9 @@ assert.ok(rows[1].includes('"10"'));
 const badExport = await fetch(new URL('/api/workouts/export?sort=invalid',base));
 assert.equal(badExport.status,400);
 console.log('Filtered CSV attachment, row count, sorting, privacy headers, and filter validation passed.');
+
+for (const filter of ['from=2026-02-30','to=2026-02-29','from=2026-10-20&to=2026-10-01']) {
+  const response = await fetch(new URL('/api/workouts/export?' + filter, base));
+  assert.equal(response.status,400);
+}
+console.log('Calendar reporting, accessible chart tables, and export calendar validation passed.');

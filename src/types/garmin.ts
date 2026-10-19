@@ -32,7 +32,6 @@ export type Workout = {
 export type WeeklyMileage = {
   week: string;
   distanceKm: number;
-  elevationGain: number;
   longRunKm: number;
   trainingLoad: number;
   activityCount: number;
@@ -40,6 +39,7 @@ export type WeeklyMileage = {
 
 export type ReadinessSnapshot = {
   date: string;
+  activityCount: number;
   acuteLoad: number;
   avgHeartRate: number | null;
 };

@@ -28,14 +28,14 @@ Export your own records using GarminDB separately, then set `GARMIN_DATA_ROOT` t
 
 ## Features
 
-- Distance, training load, intensity, and heart-rate dashboards
+- Calendar-based distance, training load, intensity, and heart-rate dashboards with accessible data tables
 - Searchable workout history with activity/date filters, accessible sorting, session details, filtered CSV export, and GPS routes with a local preview when interactive maps are unavailable
 - Optional streaming AI coaching with a Stop action, request validation, and timeouts
 - Responsive interface with light and dark themes
 
 ## Data accuracy and privacy
 
-Activity summaries are validated individually; invalid files and duplicate activity IDs are skipped and counted on `/setup`. Missing optional numeric load, intensity, and zone fields contribute zero to totals. Missing heart rate stays unavailable. Readiness, HRV, resting heart rate, sleep scores, and race goals are not imported or inferred. These dashboards are not medical guidance.
+Activity summaries are validated individually; invalid files and duplicate activity IDs are skipped and counted on `/setup`. Missing optional numeric load, intensity, and zone fields contribute zero to totals. Missing heart rate stays unavailable. Readiness, HRV, resting heart rate, sleep scores, and race goals are not imported or inferred. Charts cover eight calendar weeks (including the current partial week) and fourteen calendar days. Empty periods show zero recorded load or minutes; missing heart rate remains unavailable, not zero. These dashboards are not medical guidance.
 
 Activity files and monitoring records stay local by default. Enabling AI coaching sends a training summary and your question to OpenAI. Maps contact Mapbox. Never publish real health exports, GPS tracks, databases, credentials, or session files. This version has no user authentication: use it locally, not as a public server with personal data.
 

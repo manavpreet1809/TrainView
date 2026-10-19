@@ -62,7 +62,7 @@ export default async function DashboardPage() {
           icon={<Gauge className="size-4" />}
           title="Daily load difference"
           value={`${acuteDelta >= 0 ? '+' : ''}${acuteDelta.toFixed(0)}`}
-          description="Latest minus earliest daily load across the last 14 activity days."
+          description="Today minus the first day of the 14-calendar-day window. Missing records contribute zero load."
         />
         <HighlightCard
           icon={<Flame className="size-4" />}
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
         <HighlightCard
           icon={<Zap className="size-4" />}
           title="Zone 2 ratio"
-          value={`${zone2?.percentage ?? 0}%`}
+          value={zone2 ? `${zone2.percentage}%` : 'Unavailable'}
           description="Time-in-zone across all imported activities."
         />
       </section>

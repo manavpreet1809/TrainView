@@ -2,7 +2,7 @@ import { RouteCache } from './route-cache';
 import { normalizeRoute } from './route-geometry';
 import { isRouteId } from './route-id';
 import { readActivityImport } from './activity-import';
-import { localDateKey, formatPace, mean } from './metric-utils';
+import { buildTrainingSeries, formatPace, mean } from './metric-utils';
 import { getDataConfig } from './data-config';
 import { getDemoActivities } from './demo/activities';
 import { getDemoCoordinates } from './demo/routes';
@@ -76,16 +76,6 @@ const startOfDay = (date: Date) => {
   copy.setHours(0, 0, 0, 0);
   return copy;
 };
-
-const startOfWeek = (date: Date) => {
-  const copy = startOfDay(date);
-  const day = copy.getDay();
-  const diff = (day + 6) % 7; // make Monday start
-  copy.setDate(copy.getDate() - diff);
-  return copy;
-};
-
-const toISODate = (date: Date) => localDateKey(date);
 
 const round = (value: number, digits = 1) =>
   Number.isFinite(value) ? Number(value.toFixed(digits)) : 0;
@@ -284,129 +274,21 @@ export const getKeyMetrics = cache(async (): Promise<KeyMetric[]> => {
   return metrics;
 });
 
-export const getMileageTrend = cache(async (): Promise<WeeklyMileage[]> => {
+const getCalendarSeries = cache(async () => {
   const activities = await loadActivities();
-  if (activities.length === 0) return [];
-
-  const grouped = new Map<
-    string,
-    {
-      distance: number;
-      trainingLoad: number;
-      longRun: number;
-      count: number;
-    }
-  >();
-
-  activities.forEach(activity => {
-    const key = toISODate(startOfWeek(activity.startTime));
-    const bucket = grouped.get(key) ?? {
-      distance: 0,
-      trainingLoad: 0,
-      longRun: 0,
-      count: 0,
-    };
-    bucket.distance += activity.distanceKm;
-    bucket.trainingLoad += activity.trainingLoad;
-    bucket.longRun = Math.max(bucket.longRun, activity.distanceKm);
-    bucket.count += 1;
-    grouped.set(key, bucket);
-  });
-
-  return Array.from(grouped.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-8)
-    .map(([week, bucket]) => {
-      return {
-        week,
-        distanceKm: round(bucket.distance, 1),
-        elevationGain: 0,
-        longRunKm: round(bucket.longRun, 1),
-        trainingLoad: Math.round(bucket.trainingLoad),
-        activityCount: bucket.count,
-      };
-    });
+  return activities.length ? buildTrainingSeries(activities) : null;
 });
 
-export const getReadinessTrend = cache(
-  async (): Promise<ReadinessSnapshot[]> => {
-    const activities = await loadActivities();
-    if (activities.length === 0) return [];
-
-    const byDay = new Map<
-      string,
-      {
-        heartRates: number[];
-        maxHeartRates: number[];
-        trainingLoad: number;
-        intensityMinutes: number;
-      }
-    >();
-
-    activities.forEach(activity => {
-      const key = toISODate(activity.startTime);
-      const bucket = byDay.get(key) ?? {
-        heartRates: [],
-        maxHeartRates: [],
-        trainingLoad: 0,
-        intensityMinutes: 0,
-      };
-      if (activity.averageHeartRate) {
-        bucket.heartRates.push(activity.averageHeartRate);
-      }
-      if (activity.maxHeartRate) {
-        bucket.maxHeartRates.push(activity.maxHeartRate);
-      }
-      bucket.trainingLoad += activity.trainingLoad;
-      bucket.intensityMinutes +=
-        activity.moderateMinutes + activity.vigorousMinutes;
-      byDay.set(key, bucket);
-    });
-
-    return Array.from(byDay.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-14)
-      .map(([date, bucket]) => {
-        const avgHeartRate =
-          bucket.heartRates.length > 0
-            ? sum(bucket.heartRates) / bucket.heartRates.length
-            : 0;
-        return {
-          date,
-          acuteLoad: Math.round(bucket.trainingLoad),
-          avgHeartRate: bucket.heartRates.length ? Math.round(avgHeartRate) : null,
-        };
-      });
-  },
+export const getMileageTrend = cache(async (): Promise<WeeklyMileage[]> =>
+  (await getCalendarSeries())?.weeks ?? [],
 );
 
-export const getIntensityTrend = cache(
-  async (): Promise<IntensityRecord[]> => {
-    const activities = await loadActivities();
-    if (activities.length === 0) return [];
+export const getReadinessTrend = cache(async (): Promise<ReadinessSnapshot[]> =>
+  (await getCalendarSeries())?.days ?? [],
+);
 
-    const byDay = new Map<
-      string,
-      { moderate: number; vigorous: number }
-    >();
-
-    activities.forEach(activity => {
-      const key = toISODate(activity.startTime);
-      const bucket = byDay.get(key) ?? { moderate: 0, vigorous: 0 };
-      bucket.moderate += activity.moderateMinutes;
-      bucket.vigorous += activity.vigorousMinutes;
-      byDay.set(key, bucket);
-    });
-
-    return Array.from(byDay.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-14)
-      .map(([date, bucket]) => ({
-        date,
-        moderateMinutes: Math.round(bucket.moderate),
-        vigorousMinutes: Math.round(bucket.vigorous),
-      }));
-  },
+export const getIntensityTrend = cache(async (): Promise<IntensityRecord[]> =>
+  (await getCalendarSeries())?.days ?? [],
 );
 
 export const getHeartRateZoneBreakdown = cache(
@@ -484,7 +366,7 @@ export const getTrainingFocus = cache(
 const mapActivityToWorkout = (activity: ActivityFile): Workout => ({
   id: activity.id,
   date: activity.startTime.toISOString(),
-  type: activity.type.replace('_', ' '),
+  type: activity.type.replaceAll('_', ' '),
   title: activity.name,
   distanceKm: round(activity.distanceKm, 2),
   durationMinutes: round(activity.durationMinutes, 1),
@@ -497,7 +379,7 @@ const mapActivityToWorkout = (activity: ActivityFile): Workout => ({
     ? Math.round(activity.maxHeartRate)
     : undefined,
   calories: activity.calories ? Math.round(activity.calories) : undefined,
-  tags: [activity.type.replace('_', ' ')],
+  tags: [activity.type.replaceAll('_', ' ')],
   splits: [],
   moderateMinutes: activity.moderateMinutes,
   vigorousMinutes: activity.vigorousMinutes,

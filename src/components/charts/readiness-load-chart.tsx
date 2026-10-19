@@ -1,5 +1,7 @@
 'use client';
 
+import { ChartDataTable } from './chart-data-table';
+
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { TooltipContentProps } from 'recharts';
 import { ReadinessSnapshot } from '@/types/garmin';
@@ -30,7 +32,7 @@ export function ReadinessLoadChart({ data, className }: ReadinessLoadChartProps)
       <CardHeader className="pb-4">
         <CardTitle>Heart rate vs. load</CardTitle>
         <CardDescription>
-          Daily average activity heart rate and summed recorded load, last 14 activity days.
+          Recorded load and average session heart rate over 14 calendar days. Gaps have no heart-rate estimate; zero load means no recorded load.
         </CardDescription>
       </CardHeader>
       <CardContent className="h-[280px] pb-6">
@@ -85,6 +87,7 @@ export function ReadinessLoadChart({ data, className }: ReadinessLoadChartProps)
           </ComposedChart>
         </ResponsiveContainer>
       </CardContent>
+      <CardContent><ChartDataTable caption="Daily heart rate and recorded load" headers={["Date","Recorded load","Average session HR (bpm)","Activities"]} rows={data.map(entry => [entry.date, entry.acuteLoad, entry.avgHeartRate, entry.activityCount])} /></CardContent>
     </Card>
   );
 }

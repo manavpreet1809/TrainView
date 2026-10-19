@@ -1,5 +1,7 @@
 'use client';
 
+import { ChartDataTable } from './chart-data-table';
+
 import {
   Bar,
   BarChart,
@@ -38,7 +40,7 @@ export function SleepQualityChart({ data, className }: SleepQualityChartProps) {
       <CardHeader className="pb-4">
         <CardTitle>Intensity minutes</CardTitle>
         <CardDescription>
-          Garmin moderate and vigorous intensity minutes grouped by day.
+          Recorded moderate and vigorous minutes over 14 calendar days. Missing days show zero recorded minutes.
         </CardDescription>
       </CardHeader>
       <CardContent className="h-[280px] pb-6">
@@ -78,6 +80,7 @@ export function SleepQualityChart({ data, className }: SleepQualityChartProps) {
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
+      <CardContent><ChartDataTable caption="Daily recorded intensity minutes" headers={["Date","Moderate minutes","Vigorous minutes"]} rows={data.map(entry => [entry.date, entry.moderateMinutes, entry.vigorousMinutes])} /></CardContent>
     </Card>
   );
 }
