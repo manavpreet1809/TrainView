@@ -1,0 +1,36 @@
+name: Prepare release dependencies
+on:
+  push:
+    branches: [codex/finish-release]
+permissions:
+  contents: read
+jobs:
+  dependencies:
+    if: github.ref == 'refs/heads/codex/finish-release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: npm install --package-lock-only --ignore-scripts --save-exact next@16.4.2 react@19.2 react-dom@19.2
+      - run: npm install --package-lock-only --ignore-scripts --save-dev --save-exact eslint-config-next@16.4.2 @playwright/test
+      - name: Preserve clean package metadata
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          for (const pkg of Object.values(lock.packages ?? {})) delete pkg.funding;
+          fs.writeFileSync('package-lock.json', JSON.stringify(lock, null, 2) + '\n');
+          NODE
+      - name: Commit reproducible dependency lock
+        run: |
+          git config user.name "Manavpreet Singh"
+          git config user.email "manavpreet1809@users.noreply.github.com"
+          git add package.json package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Next.js security patches and add browser test runner"
+            git push origin HEAD:codex/finish-release
+          fi
