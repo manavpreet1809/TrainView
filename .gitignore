@@ -51,3 +51,7 @@ next-env.d.ts
 *.sqlite3
 *.fit
 !.env.example
+
+# Browser release reports
+/playwright-report/
+/test-results/

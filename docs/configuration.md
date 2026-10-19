@@ -2,6 +2,7 @@
 
 | Variable | Purpose |
 | --- | --- |
+| TRAINVIEW_DEMO_MODE | Set true for synthetic records and offline coaching. Vercel deployments always use synthetic mode. |
 | DATABASE_URL | SQLite URL; use `file:./dev.db` for local development. |
 | GARMIN_DATA_ROOT | Absolute HealthData directory; defaults to the project HealthData directory. |
 | NEXT_PUBLIC_MAPBOX_TOKEN | Optional browser-visible Mapbox token. Restrict allowed origins in Mapbox. |

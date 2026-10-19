@@ -55,6 +55,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <div className="space-y-2"><h1 className="text-2xl font-semibold tracking-tight">Training dashboard</h1><p className="text-sm text-muted-foreground">Distance, load, and heart rate from your recorded activities.</p></div>
       <KeyMetrics metrics={metrics} />
 
       <section className="grid gap-4 md:grid-cols-3">

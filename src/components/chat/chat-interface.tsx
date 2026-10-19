@@ -139,7 +139,7 @@ export function ChatInterface({ context, endpoint = '/api/chat' }: ChatInterface
       <div
         role="log" aria-label="Coaching conversation" aria-live="polite"
         ref={containerRef}
-        className="h-[480px] overflow-y-auto rounded-xl border border-border/50 bg-background p-5"
+        className="h-[min(55dvh,480px)] min-h-64 overflow-y-auto rounded-xl border border-border/50 bg-background p-5"
       >
         <div className="space-y-3">
           {messages.map(message => (
@@ -184,7 +184,7 @@ function MessageBubble({ message }: { message: Message }) {
   }
 
   const baseClasses =
-    'max-w-[78%] rounded-lg px-4 py-2 text-sm leading-relaxed shadow-sm whitespace-pre-wrap';
+    'max-w-[90%] sm:max-w-[78%] break-words rounded-lg px-4 py-2 text-sm leading-relaxed shadow-sm whitespace-pre-wrap';
 
   const formatted = message.content
     .replace(/\*\*(.*?)\*\*/g, '$1')

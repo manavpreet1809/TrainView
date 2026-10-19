@@ -22,6 +22,10 @@ Run `npm run dev:demo` to explore synthetic workouts and steps without Garmin ex
 
 With Docker running, use `docker compose up --build --wait` and open http://localhost:3000. It uses synthetic data and needs no Garmin account or API keys. See [deployment](docs/deployment.md) for standalone Node packaging and verification limits.
 
+## Vercel demo
+
+Import this repository into Vercel using the Next.js preset. No credentials are needed for the synthetic demo. Vercel deployments always use demo data; personal imports remain available locally and in Docker. See [deployment instructions](docs/deployment.md#vercel-public-demo).
+
 ## Garmin data
 
 Export your own records using GarminDB separately, then set `GARMIN_DATA_ROOT` to its HealthData directory. TrainView reads `FitFiles/Activities/activity_<id>.json` summaries and `<id>_ACTIVITY.fit` routes. Monitoring tables use the SQLite database selected by `DATABASE_URL`; a fresh database contains no records. TrainView does not log in to Garmin or automatically synchronize your watch.
@@ -48,6 +52,8 @@ npm test
 npm run build
 npm run test:production
 npm run test:standalone
+npx playwright install chromium
+npx playwright test
 npm start
 ```
 

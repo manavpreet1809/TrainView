@@ -8,7 +8,7 @@ export default async function SetupPage() {
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-semibold">Set up TrainView</h1>
-      <p>Choose sample data or connect your own GarminDB exports. Configuration stays on the server.</p>
+      <p>{status.demo ? "You are exploring fictional workouts and routes. Personal Garmin records can be connected when running TrainView locally." : "Connect your own GarminDB exports. Configuration stays on the server."}</p>
       <dl className="grid gap-3 sm:grid-cols-2">
         <div><dt>Data source</dt><dd>{status.demo ? 'Synthetic demo' : 'Local Garmin exports'}</dd></div>
         <div><dt>Activity files</dt><dd>{status.count} {status.demo ? 'samples' : 'valid summaries'}</dd></div>

@@ -13,3 +13,9 @@ test('blank paths and optional credentials have safe defaults', () => {
   assert.equal(config.coach, false);
   assert.equal(config.maps, false);
 });
+
+test('Vercel always serves synthetic data, even with local mode requested', () => {
+  assert.equal(getDataConfig({ VERCEL: '1', TRAINVIEW_DEMO_MODE: 'false' }).demo, true);
+  assert.equal(getDataConfig({ VERCEL: '1' }).demo, true);
+  assert.equal(getDataConfig({ VERCEL: '0', TRAINVIEW_DEMO_MODE: 'false' }).demo, false);
+});

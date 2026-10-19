@@ -54,6 +54,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full bg-muted/30">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:p-3 focus:shadow">Skip to content</a>
       <aside
         className={cn(
           'relative hidden border-r border-border bg-sidebar transition-all duration-200 md:block',
@@ -92,7 +93,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </Tooltip>
           </div>
 
-          <nav className="mt-6 flex flex-col gap-2 px-4">
+          <nav aria-label="Main navigation" className="mt-6 flex flex-col gap-2 px-4">
             {navItems.map(item => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
@@ -170,7 +171,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
 
-          <main className="flex-1 px-4 py-8 md:px-8 md:py-10">
+          <main id="main-content" tabIndex={-1} className="flex-1 px-4 py-8 md:px-8 md:py-10">
             <div className="mx-auto w-full max-w-6xl space-y-6">{children}</div>
           </main>
         </div>
