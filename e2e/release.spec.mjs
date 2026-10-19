@@ -122,7 +122,7 @@ test('route failure offers retry and recovers to a local preview', async ({ page
   });
   await page.goto('/workouts');
   await page.getByRole('button', { name: /^Open (?!navigation)/ }).first().click();
-  await expect(page.locator('main').getByRole('alert')).toContainText('Unable to load map');
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Unable to load map');
   await page.getByRole('button', { name: 'Retry route' }).click();
   await expect(page.getByRole('img', { name: 'Simplified route shape without a basemap' })).toBeVisible();
 });
