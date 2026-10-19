@@ -64,7 +64,7 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
           <Input value={search} onChange={event => setSearch(event.target.value)} placeholder="Title, type, location, or tag" />
         </label>
         <label className="space-y-1 text-sm">Activity type
-          <select className="h-9 w-full rounded-md border bg-background px-3" value={type} onChange={event => setType(event.target.value)}>
+          <select aria-label="Activity type" className="h-9 w-full rounded-md border bg-background px-3" value={type} onChange={event => setType(event.target.value)}>
             <option value="">All types</option>{types.map(value => <option key={value} value={value}>{value}</option>)}
           </select>
         </label>

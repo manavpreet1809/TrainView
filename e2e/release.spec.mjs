@@ -27,7 +27,7 @@ test('workouts filter, sort, open and export matching records', async ({ page })
   await expect(rows).toHaveCount(total);
   await page.getByRole('button', { name: /^Distance/ }).click();
   await expect(page.getByRole('columnheader', { name: /^Distance/ })).toHaveAttribute('aria-sort', 'descending');
-  await page.getByRole('button', { name: /^Open / }).first().click();
+  await page.getByRole('button', { name: /^Open (?!navigation)/ }).first().click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.getByRole('dialog').getByText('Training load', { exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -107,9 +107,9 @@ test('date range validation can be corrected', async ({ page }) => {
   await page.goto('/workouts');
   await page.getByLabel('From date', { exact: true }).fill('2099-01-02');
   await page.getByLabel('To date', { exact: true }).fill('2099-01-01');
-  await expect(page.getByRole('alert')).toContainText('From date must be on or before to date.');
+  await expect(page.locator('main').getByRole('alert')).toContainText('From date must be on or before to date.');
   await page.getByRole('button', { name: 'Clear filters' }).click();
-  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(page.locator('main').getByRole('alert')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Export filtered CSV' })).toBeEnabled();
 });
 
@@ -121,8 +121,8 @@ test('route failure offers retry and recovers to a local preview', async ({ page
     else await route.continue();
   });
   await page.goto('/workouts');
-  await page.getByRole('button', { name: /^Open / }).first().click();
-  await expect(page.getByRole('alert')).toContainText('Unable to load map');
+  await page.getByRole('button', { name: /^Open (?!navigation)/ }).first().click();
+  await expect(page.locator('main').getByRole('alert')).toContainText('Unable to load map');
   await page.getByRole('button', { name: 'Retry route' }).click();
   await expect(page.getByRole('img', { name: 'Simplified route shape without a basemap' })).toBeVisible();
 });
