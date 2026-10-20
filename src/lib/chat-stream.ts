@@ -2,12 +2,14 @@ export class ChatEventParser {
   private buffer='';
   done=false;
   feed(chunk: string, final=false): string[] {
+    return [...this.parse(chunk, final)];
+  }
+  *parse(chunk: string, final=false): Generator<string> {
     this.buffer=(this.buffer+chunk).replace(/\r\n/g,'\n');
     if(this.buffer.length>65536) throw new Error('Upstream event too large');
     const events=this.buffer.split('\n\n');
     this.buffer=events.pop() ?? '';
     if(final && this.buffer.trim()) {events.push(this.buffer); this.buffer='';}
-    const output: string[]=[];
     for(const event of events) {
       if(this.done) break;
       const data=event.split('\n').filter(line=>line.startsWith('data:')).map(line=>line.slice(5).trimStart()).join('\n');
@@ -17,9 +19,8 @@ export class ChatEventParser {
       if(value.error) throw new Error('Upstream stream error');
       const delta=value.choices?.[0]?.delta;
       const content=delta?.content ?? delta?.refusal;
-      if(typeof content==='string') output.push(content);
+      if(typeof content==='string') yield content;
     }
-    return output;
   }
 }
 
@@ -66,7 +67,7 @@ export async function createCoachingResponse(options: CoachingOptions): Promise<
         while (!parser.done && !cancelled) {
           const { value, done } = await reader.read();
           const text = done ? decoder.decode() : decoder.decode(value, { stream: true });
-          for (const content of parser.feed(text, done)) {
+          for (const content of parser.parse(text, done)) {
             if (!cancelled) controller.enqueue(encoder.encode(content));
           }
           if (done) break;
