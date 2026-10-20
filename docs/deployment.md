@@ -53,4 +53,4 @@ Import `manavpreet1809/TrainView` into your Vercel account, choose Next.js, and 
 
 The public demo shows fictional workouts and routes, calendar charts, filtered CSV exports, and offline coaching. It does not connect to Garmin. Do not upload personal data or API keys to this demo project.
 
-Verify the deployed URL by opening Dashboard, Workouts, AI Coach, and Data setup, and checking `/api/health` returns demo mode. Vercel provisioning and a verified live URL require access to the owner's Vercel account.
+Verify the deployed URL by opening Dashboard, Workouts, AI Coach, and Data setup, and checking `/api/health` returns demo mode. The deployed public demo is https://trainview-sooty.vercel.app. The Verify public demo workflow checks its pages and APIs without credentials; it can also be run manually from GitHub Actions.

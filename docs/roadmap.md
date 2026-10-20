@@ -9,6 +9,6 @@
 
 The public demonstration uses synthetic data and offline coaching. Personal-data mode runs locally or in Docker. Public personal accounts, Garmin account synchronization, readiness/HRV/sleep imports, race-goal planning, and paid coaching hosting are outside this release.
 
-Deployment remains pending until the owner connects Vercel and the live URL passes smoke verification. Live OpenAI, Mapbox, and personal FIT behavior require provider credentials and representative exports; automated demo checks do not certify these integrations.
+The public demo is deployed at https://trainview-sooty.vercel.app. Unauthenticated deployment smoke checks pass for pages, routes, offline coaching, health, input validation, and filtered CSV export. Live OpenAI, Mapbox, and personal FIT behavior require provider credentials and representative exports; automated demo checks do not certify these integrations.
 
 Commit related implementation, tests, and documentation together. There is no commit quota.
