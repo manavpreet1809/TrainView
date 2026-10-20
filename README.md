@@ -32,6 +32,10 @@ Import this repository into Vercel using the Next.js preset. No credentials are 
 
 Export your own records using GarminDB separately, then set `GARMIN_DATA_ROOT` to its HealthData directory. TrainView reads `FitFiles/Activities/activity_<id>.json` summaries and `<id>_ACTIVITY.fit` routes. Monitoring tables use the SQLite database selected by `DATABASE_URL`; a fresh database contains no records. TrainView does not log in to Garmin or automatically synchronize your watch.
 
+## Live integrations
+
+Local OpenAI coaching and Mapbox routes are implemented. Follow [live setup and verification](docs/live-integrations.md) to configure your own keys privately. Provider availability and personal exports still require real-world verification; CI uses mocked provider responses.
+
 ## Features
 
 - Calendar-based distance, training load, intensity, and heart-rate dashboards with accessible data tables

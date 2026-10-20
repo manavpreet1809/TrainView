@@ -1,4 +1,4 @@
-import { ChatEventParser } from '@/lib/chat-stream';
+import { createCoachingResponse } from '@/lib/chat-stream';
 import { readChatMessage, ChatInputError } from '@/lib/chat-request';
 import { getDataConfig } from '@/lib/data-config';
 import { NextResponse } from 'next/server';
@@ -33,63 +33,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      signal: AbortSignal.any([request.signal, AbortSignal.timeout(30000)]),
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        temperature: 0.4,
-        stream: true,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          {
-            role: 'user',
-            content: `${context}\n\nQuestion: ${userMessage}`,
-          },
-        ],
-      }),
-    });
-
-    if (!response.ok || !response.body) {
-      await response.body?.cancel();
-      console.warn('[chat] Upstream request failed with status', response.status);
-      return new NextResponse(fallbackReply(context, userMessage), {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
-      });
-    }
-
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-    const reader = response.body.getReader();
-    let cancelled = false;
-    const stream = new ReadableStream<Uint8Array>({
-      async start(controller) {
-        const parser = new ChatEventParser();
-        try {
-          while (!parser.done && !cancelled) {
-            const { value, done } = await reader.read();
-            const text = done ? decoder.decode() : decoder.decode(value, { stream: true });
-            for (const content of parser.feed(text, done)) controller.enqueue(encoder.encode(content));
-            if (done) break;
-          }
-          if (!parser.done && !cancelled) throw new Error('Incomplete upstream response');
-        } catch {
-          if (!cancelled) controller.enqueue(encoder.encode('\n\nThe coaching response was interrupted. This answer may be incomplete; please try again.'));
-        } finally {
-          await reader.cancel().catch(() => {});
-          reader.releaseLock();
-          if (!cancelled) controller.close();
-        }
-      },
-      async cancel() { cancelled = true; await reader.cancel().catch(() => {}); },
-    });
-
-    return new NextResponse(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
+    return await createCoachingResponse({
+      apiKey,
+      model: getDataConfig().coachingModel,
+      systemPrompt: SYSTEM_PROMPT,
+      context,
+      message: userMessage,
+      signal: request.signal,
     });
   } catch {
     console.warn('[chat] Upstream request unavailable or timed out');

@@ -19,3 +19,12 @@ test('Vercel always serves synthetic data, even with local mode requested', () =
   assert.equal(getDataConfig({ VERCEL: '1' }).demo, true);
   assert.equal(getDataConfig({ VERCEL: '0', TRAINVIEW_DEMO_MODE: 'false' }).demo, false);
 });
+
+test('coaching status separates configured local mode from public demo mode', () => {
+  assert.equal(getDataConfig({}).coachingMode, 'offline');
+  assert.equal(getDataConfig({ OPENAI_API_KEY: 'test-key' }).coachingMode, 'live');
+  assert.equal(getDataConfig({ OPENAI_API_KEY: 'test-key', VERCEL: '1' }).coachingMode, 'demo');
+  assert.equal(getDataConfig({ OPENAI_API_KEY: 'test-key', TRAINVIEW_DEMO_MODE: 'true' }).coachingMode, 'demo');
+  assert.equal(getDataConfig({ OPENAI_MODEL: '  ' }).coachingModel, 'gpt-4o-mini');
+  assert.equal(getDataConfig({ OPENAI_MODEL: ' my-model ' }).coachingModel, 'my-model');
+});

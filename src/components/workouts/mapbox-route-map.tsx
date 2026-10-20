@@ -20,12 +20,7 @@ const ROUTE_LAYER_ID = 'activity-route-line';
 const BASE_SPEED_METERS_PER_SECOND = 12;
 const DEFAULT_SPEED_MULTIPLIER = 1;
 
-const accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
-if (!accessToken) {
-  console.warn(
-    '[MapboxRouteMap] NEXT_PUBLIC_MAPBOX_TOKEN is not set. Mapbox map will render a placeholder.',
-  );
-}
+const accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim() ?? '';
 mapboxgl.accessToken = accessToken;
 
 export default function MapboxRouteMap({
@@ -33,6 +28,7 @@ export default function MapboxRouteMap({
   className,
 }: MapboxRouteMapProps) {
   const [mapError, setMapError] = useState(false);
+  const [isMapReady, setIsMapReady] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const animationRef = useRef<number | undefined>(undefined);
@@ -146,8 +142,11 @@ export default function MapboxRouteMap({
     }); } catch { setMapError(true); return; }
     mapRef.current = map;
 
+    const loadTimeout = window.setTimeout(() => setMapError(true), 15000);
     map.on('error', () => setMapError(true));
     map.on('load', () => {
+      window.clearTimeout(loadTimeout);
+      try {
       if (!map.getSource(TERRAIN_SOURCE_ID)) {
         map.addSource(TERRAIN_SOURCE_ID, {
           type: 'raster-dem',
@@ -254,9 +253,12 @@ export default function MapboxRouteMap({
       }
 
       fitMapToRoute(map, lngLat);
+      setIsMapReady(true);
+      } catch { setMapError(true); }
     });
 
     return () => {
+      window.clearTimeout(loadTimeout);
       map.remove();
       mapRef.current = null;
       cancelAnimationFrame(animationRef.current ?? 0);
@@ -418,6 +420,7 @@ export default function MapboxRouteMap({
       {isExpanded && <div aria-hidden className={placeholderClasses} />}
       <div className={mapClasses}>
         <div ref={containerRef} className="absolute inset-0 h-full w-full" />
+        {!isMapReady && <p role="status" className="absolute left-3 top-3 rounded bg-background px-3 py-2 text-sm text-foreground">Loading interactive map…</p>}
 
         <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4">
           <div className="flex justify-end">
@@ -447,7 +450,7 @@ export default function MapboxRouteMap({
                   type="button"
                   onClick={toggleAnimation}
                   className="flex items-center gap-1.5 rounded-full bg-blue-600 px-3.5 py-1.5 text-white shadow-md transition hover:bg-blue-500 disabled:opacity-50"
-                  disabled={!hasRoute}
+                  disabled={!hasRoute || !isMapReady}
                 >
                   {isAnimating ? (
                     <>
@@ -471,7 +474,7 @@ export default function MapboxRouteMap({
                     }
                   }}
                   className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/70 px-3.5 py-1.5 text-slate-600 transition hover:bg-blue-50 disabled:opacity-50"
-                  disabled={!hasRoute}
+                  disabled={!hasRoute || !isMapReady}
                 >
                   <RotateCcw className="size-3.5" /> Reset
                 </button>

@@ -12,8 +12,8 @@ export default async function SetupPage() {
       <dl className="grid gap-3 sm:grid-cols-2">
         <div><dt>Data source</dt><dd>{status.demo ? 'Synthetic demo' : 'Local Garmin exports'}</dd></div>
         <div><dt>Activity files</dt><dd>{status.count} {status.demo ? 'samples' : 'valid summaries'}</dd></div>
-        <div><dt>Route maps</dt><dd>{status.maps ? 'Token configured' : 'Optional token not configured'}</dd></div>
-        <div><dt>AI coaching</dt><dd>{status.coach && !status.demo ? 'Key configured' : status.demo ? 'Offline demo guidance' : 'Offline fallback'}</dd></div>
+        <div><dt>Route maps</dt><dd>{status.maps ? 'Interactive maps configured; availability is checked when a route opens' : 'Local route preview; no map token configured'}</dd></div>
+        <div><dt>AI coaching</dt><dd>{status.coachingMode === 'live' ? 'Live coaching configured; provider response not yet verified' : status.coachingMode === 'demo' ? 'Offline demo guidance' : 'Offline fallback'}</dd></div>
       <div><dt>Skipped summaries</dt><dd>{status.skipped} invalid, {status.duplicates} duplicates</dd></div>
       </dl>
       <section className="space-y-2"><h2 className="text-lg font-semibold">Explore sample data</h2>

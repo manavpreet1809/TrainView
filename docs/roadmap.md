@@ -12,3 +12,5 @@ The public demonstration uses synthetic data and offline coaching. Personal-data
 The public demo is deployed at https://trainview-sooty.vercel.app. Unauthenticated deployment smoke checks pass for pages, routes, offline coaching, health, input validation, and filtered CSV export. Live OpenAI, Mapbox, and personal FIT behavior require provider credentials and representative exports; automated demo checks do not certify these integrations.
 
 Commit related implementation, tests, and documentation together. There is no commit quota.
+
+Live integration hardening includes bounded coaching output, injectable provider tests, accurate mode labels, and Mapbox initialization timeout/recovery. See [activation and remaining verification](live-integrations.md).

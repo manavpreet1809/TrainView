@@ -22,3 +22,70 @@ export class ChatEventParser {
     return output;
   }
 }
+
+type CoachingOptions = {
+  apiKey: string;
+  model: string;
+  systemPrompt: string;
+  context: string;
+  message: string;
+  signal: AbortSignal;
+  fetchImpl?: typeof fetch;
+  timeoutMs?: number;
+};
+
+// Keep transport injectable so failures and streams can be verified without paid API calls.
+export async function createCoachingResponse(options: CoachingOptions): Promise<Response> {
+  const upstream = await (options.fetchImpl ?? fetch)('https://api.openai.com/v1/chat/completions', {
+    signal: AbortSignal.any([options.signal, AbortSignal.timeout(options.timeoutMs ?? 30000)]),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${options.apiKey}` },
+    body: JSON.stringify({
+      model: options.model,
+      temperature: 0.4,
+      stream: true,
+      max_completion_tokens: 800,
+      messages: [
+        { role: 'system', content: options.systemPrompt },
+        { role: 'user', content: `${options.context}\n\nQuestion: ${options.message}` },
+      ],
+    }),
+  });
+  if (!upstream.ok || !upstream.body) {
+    await upstream.body?.cancel();
+    throw new Error('Coaching provider unavailable');
+  }
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  const reader = upstream.body.getReader();
+  let cancelled = false;
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const parser = new ChatEventParser();
+      try {
+        while (!parser.done && !cancelled) {
+          const { value, done } = await reader.read();
+          const text = done ? decoder.decode() : decoder.decode(value, { stream: true });
+          for (const content of parser.feed(text, done)) {
+            if (!cancelled) controller.enqueue(encoder.encode(content));
+          }
+          if (done) break;
+        }
+        if (!parser.done && !cancelled) throw new Error('Incomplete upstream response');
+      } catch {
+        if (!cancelled) controller.enqueue(encoder.encode('\n\nThe coaching response was interrupted. This answer may be incomplete; please try again.'));
+      } finally {
+        await reader.cancel().catch(() => {});
+        reader.releaseLock();
+        if (!cancelled) controller.close();
+      }
+    },
+    async cancel() {
+      cancelled = true;
+      await reader.cancel().catch(() => {});
+    },
+  });
+  return new Response(stream, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
+  });
+}
