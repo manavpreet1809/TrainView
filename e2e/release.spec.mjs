@@ -145,3 +145,13 @@ test('failed CSV export keeps filters and allows retry', async ({ page }) => {
   expect((await downloadPromise).suggestedFilename()).toBe('trainview-workouts.csv');
   await expect(page.locator('main').getByRole('alert')).toHaveCount(0);
 });
+
+test('extra training charts can be expanded without leaving the dashboard', async ({ page }) => {
+  await page.goto('/');
+  const chartTitle = page.getByText('Heart rate vs. load', { exact: true });
+  await expect(chartTitle).not.toBeVisible();
+  await page.getByText('More training details', { exact: true }).click();
+  await expect(chartTitle).toBeVisible();
+  await page.getByText('More training details', { exact: true }).click();
+  await expect(chartTitle).not.toBeVisible();
+});

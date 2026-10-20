@@ -29,7 +29,7 @@ export default async function DashboardPage() {
     getReadinessTrend(),
     getIntensityTrend(),
     getHeartRateZoneBreakdown(),
-    getRecentWorkouts(4),
+    getRecentWorkouts(2),
   ]);
 
   return (
@@ -38,20 +38,21 @@ export default async function DashboardPage() {
       <KeyMetrics metrics={metrics} />
 
       <RecentWorkouts workouts={recentWorkouts} />
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold">Your activity charts</h2>
-        <p className="text-sm text-muted-foreground">Training load is the effort value recorded by your device. A higher value means more recorded effort, not a better workout.</p>
-      </div>
-
-      <section className="grid gap-6 xl:grid-cols-2">
+      <section aria-label="Distance over time" className="space-y-3">
+        <h2 className="text-xl font-semibold">Your progress</h2>
         <MileageTrendChart data={mileageTrend} />
-        <ReadinessLoadChart data={readinessTrend} />
       </section>
-
-      <section className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-        <SleepQualityChart data={intensityTrend} className="h-full" />
-        <HeartRateZonesChart data={heartZones} className="h-full" />
-      </section>
+      <details className="rounded-lg border bg-card p-4 sm:p-5">
+        <summary className="text-base font-semibold text-primary">More training details</summary>
+        <div className="mt-5 space-y-5">
+          <p className="text-sm text-muted-foreground">Training load is the effort value recorded by your device. Higher load means more recorded effort, not a better workout.</p>
+          <ReadinessLoadChart data={readinessTrend} />
+          <div className="grid gap-5 lg:grid-cols-2">
+            <SleepQualityChart data={intensityTrend} />
+            <HeartRateZonesChart data={heartZones} />
+          </div>
+        </div>
+      </details>
 
       <p className="text-sm text-muted-foreground">Readiness measurements are not imported; no score is inferred. Missing heart-rate readings are left blank.</p>
     </div>
