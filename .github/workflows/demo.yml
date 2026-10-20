@@ -1,0 +1,23 @@
+name: Verify public demo
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, codex/publish-demo]
+    paths:
+      - .github/workflows/demo.yml
+      - scripts/smoke.mjs
+permissions:
+  contents: read
+jobs:
+  public-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Verify public pages and APIs without authentication
+        run: node scripts/smoke.mjs
+        env:
+          TRAINVIEW_TEST_URL: https://trainview-sooty.vercel.app

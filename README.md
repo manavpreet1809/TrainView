@@ -2,6 +2,8 @@
 
 A personal fitness dashboard for workout analytics, GPS routes, and optional AI coaching. Built by Manavpreet Singh.
 
+[Open the live synthetic demo](https://trainview-sooty.vercel.app).
+
 ## Quick start
 
 Use Node.js 22.18 or newer and npm. Copy `.env.example` to `.env`, then run:
