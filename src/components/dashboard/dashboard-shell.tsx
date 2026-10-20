@@ -2,179 +2,49 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, BarChart3, Bot, Menu, Navigation } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Menu } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-type NavItem = {
-  title: string;
-  description: string;
-  href: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-};
-
-const navItems: NavItem[] = [
-  { title: 'Data setup', description: 'Sample data, imports, and privacy.', href: '/setup', icon: Activity },
-  {
-    title: 'Dashboard',
-    description: 'Overview of distance, training load, and heart rate.',
-    href: '/',
-    icon: Navigation,
-  },
-  {
-    title: 'Workouts',
-    description: 'Search workouts and inspect recorded session metrics.',
-    href: '/workouts',
-    icon: Activity,
-  },
-  {
-    title: 'AI Coach',
-    description: 'Chat with GPT about your Garmin history.',
-    href: '/chat',
-    icon: Bot,
-  },
+const pages = [
+  { title: 'Dashboard', href: '/' },
+  { title: 'Workouts', href: '/workouts' },
+  { title: 'AI Coach', href: '/chat' },
+  { title: 'Data setup', href: '/setup' },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const activeItem = useMemo(
-    () => navItems.find(item => item.href === pathname),
-    [pathname],
-  );
-
   return (
-    <div className="flex min-h-screen w-full bg-muted/30">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:p-3 focus:shadow">Skip to content</a>
-      <aside
-        className={cn(
-          'relative hidden border-r border-border bg-sidebar transition-all duration-200 md:block',
-          isCollapsed ? 'w-[84px]' : 'w-72',
-        )}
-      >
-          <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-sidebar-primary/10 text-sidebar-primary">
-              <Navigation className="size-5" />
-            </div>
-            {!isCollapsed && (
-              <div>
-                <p className="text-sm font-semibold tracking-tight text-sidebar-foreground">
-                  TrainView
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Performance dashboards
-                </p>
-              </div>
-            )}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="ml-auto size-8"
-                  onClick={() => setIsCollapsed(prev => !prev)}
-                >
-                  <BarChart3 className="size-4" />
-                  <span className="sr-only">Toggle sidebar</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                {isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-
-          <nav aria-label="Main navigation" className="mt-6 flex flex-col gap-2 px-4">
-            {navItems.map(item => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Tooltip key={item.href}>
-                  <TooltipTrigger asChild>
-                    <Link
-                      href={item.href}
-                      aria-current={isActive ? 'page' : undefined}
-                      aria-label={isCollapsed ? item.title : undefined}
-                      className={cn(
-                        'group flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-all',
-                        isActive
-                          ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
-                          : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
-                        isCollapsed && 'justify-center px-0',
-                      )}
-                    >
-                      <Icon className="size-4 shrink-0" />
-                      {!isCollapsed && (
-                        <div className="flex flex-col">
-                          <span className="font-medium">{item.title}</span>
-                          <span className="text-xs text-muted-foreground/80">
-                            {item.description}
-                          </span>
-                        </div>
-                      )}
-                    </Link>
-                  </TooltipTrigger>
-                  {isCollapsed && (
-                    <TooltipContent side="right">{item.title}</TooltipContent>
-                  )}
-                </Tooltip>
-              );
-            })}
+    <div className="min-h-screen bg-muted/30">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:p-3">Skip to content</a>
+      <header className="border-b bg-background">
+        <div className="mx-auto flex min-h-16 max-w-5xl items-center gap-5 px-4 sm:px-6">
+          <Link href="/" className="text-xl font-bold text-primary">TrainView</Link>
+          <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
+            {pages.map(page => (
+              <Link key={page.href} href={page.href} aria-current={pathname === page.href ? 'page' : undefined}
+                className={`rounded-md px-3 py-2 text-sm ${pathname === page.href ? 'bg-accent font-semibold text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}>
+                {page.title}
+              </Link>
+            ))}
           </nav>
-
-          
-        </aside>
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-16 items-center border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/0">
-            <div className="flex flex-1 items-center gap-3 px-4 md:px-6">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="md:hidden" variant="outline" size="icon">
-                    <Menu className="size-5" />
-                    <span className="sr-only">Open navigation</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={12}>
-                  {navItems.map(item => (
-                    <DropdownMenuItem key={item.href} asChild>
-                      <Link href={item.href}>{item.title}</Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <div className="hidden flex-col md:flex">
-                <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                  {activeItem?.title ?? 'TrainView'}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {activeItem?.description ??
-                    'Your training data, visualized and explained.'}
-                </span>
-              </div>
-
-              <div className="ml-auto flex items-center gap-2">
-                <ThemeToggle />
-
-                
-              </div>
-            </div>
-          </header>
-
-          <main id="main-content" tabIndex={-1} className="flex-1 px-4 py-8 md:px-8 md:py-10">
-            <div className="mx-auto w-full max-w-6xl space-y-6">{children}</div>
-          </main>
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="md:hidden" variant="outline" size="icon" aria-label="Open navigation"><Menu className="size-5" /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {pages.map(page => <DropdownMenuItem key={page.href} asChild><Link href={page.href} aria-current={pathname === page.href ? 'page' : undefined}>{page.title}</Link></DropdownMenuItem>)}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-      </div>
-    );
+      </header>
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-5xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+      <footer className="mx-auto max-w-5xl border-t px-4 py-5 text-sm text-muted-foreground sm:px-6">TrainView · A fitness project by Manavpreet Singh</footer>
+    </div>
+  );
 }

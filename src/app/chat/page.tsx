@@ -15,12 +15,12 @@ export default async function ChatPage() {
   const chatContext = { weeklyDistance: weeklyDistanceMetric?.value ?? '--' };
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 py-8">
+    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4">
       <Card className="border border-border/70 shadow-sm">
         <CardHeader className="space-y-3">
           <CardTitle className="text-2xl font-semibold">AI Coach</CardTitle>
           <CardDescription className="text-sm leading-relaxed">
-            Ask about your recorded workout history. Live mode sends your question and training summaries to OpenAI; GPS routes are excluded. Demo coaching stays offline. Recorded 7-day distance: {chatContext.weeklyDistance}.
+            Ask a question about your workouts. In this demo, replies are a fixed explanation rather than live AI advice. With live coaching enabled locally, your question and training summary go to OpenAI, but GPS routes do not. Distance in the last 7 days: {chatContext.weeklyDistance}.
             
           </CardDescription>
         </CardHeader>

@@ -16,13 +16,13 @@ export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
     <Card className="border-border/80">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <div className="space-y-1">
-          <CardTitle>Recent sessions</CardTitle>
+          <CardTitle>Recent workouts</CardTitle>
           <CardDescription>
-            Highlights from the last few Garmin activities.
+            Your latest activities. Open the workout log for more details.
           </CardDescription>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link href="/workouts">Open log</Link>
+          <Link href="/workouts">View all workouts</Link>
         </Button>
       </CardHeader>
       <CardContent>
@@ -31,7 +31,7 @@ export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
           {workouts.map(workout => (
             <article
               key={workout.id}
-              className="rounded-2xl border border-border/70 px-4 py-3 transition-colors hover:border-border"
+              className="rounded-md border border-border/70 px-4 py-3 transition-colors hover:border-border"
             >
               <div className="flex flex-wrap items-start gap-3">
                 <Badge variant="outline" className="capitalize">
@@ -53,12 +53,12 @@ export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
                   : 'Distance n/a'}{' '}
                 • {workout.averagePace ?? 'pace n/a'}
               </p>
-              <div className="mt-3 grid gap-4 text-sm text-muted-foreground md:grid-cols-4">
+              <div className="mt-3 grid gap-4 text-sm text-muted-foreground grid-cols-2 sm:grid-cols-4">
                 <InfoChip icon={<Timer className="size-3.5" />} label="Time">
                   {Math.round(workout.durationMinutes)} min
                 </InfoChip>
                 <InfoChip icon={<Flame className="size-3.5" />} label="Load">
-                  {workout.trainingLoad ?? '—'}
+                  {workout.trainingLoad ?? 'Not recorded'}
                 </InfoChip>
                 <InfoChip icon={<Activity className="size-3.5" />} label="Type">
                   {workout.type}
@@ -66,7 +66,7 @@ export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
                 <InfoChip icon={<HeartPulse className="size-3.5" />} label="Heart rate">
                   {workout.averageHeartRate
                     ? `${workout.averageHeartRate} bpm`
-                    : '—'}
+                    : 'Not recorded'}
                 </InfoChip>
               </div>
               {workout.notes && (
@@ -93,7 +93,7 @@ function InfoChip({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="flex size-8 items-center justify-center rounded-lg border border-border/60 text-muted-foreground">
+      <span className="flex size-5 items-center justify-center text-muted-foreground">
         {icon}
       </span>
       <div className="flex flex-col">

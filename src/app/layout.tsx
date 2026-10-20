@@ -7,7 +7,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'TrainView',
   description:
-    'Beautiful dashboards, insights, and AI coaching powered by your Garmin data.',
+    'A simple way to review workouts, distance, and training history.',
 };
 
 export default function RootLayout({
