@@ -112,7 +112,7 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
               <th className="px-4 py-3">Duration</th>
               <Th label="Load" direction={sortKey === 'trainingLoad' ? sortDirection : undefined} onClick={() => handleSort('trainingLoad')} />
               <th className="hidden px-4 py-3 lg:table-cell">Tags</th>
-              <th className="sticky right-0 bg-muted px-4 py-3 text-right">Details</th>
+              <th className="bg-muted px-4 py-3 text-right">Details</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60 text-sm">
@@ -162,7 +162,7 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
                     ))}
                   </div>
                 </td>
-                <td className="sticky right-0 bg-card px-4 py-3 text-right">
+                <td className="bg-card px-4 py-3 text-right">
                   <Dialog onOpenChange={open => !open && setSelectedWorkoutId(null)}>
                     <DialogTrigger asChild>
                       <Button
