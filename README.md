@@ -2,7 +2,7 @@
 
 A personal fitness dashboard for workout analytics, GPS routes, and optional AI coaching. Built by Manavpreet Singh.
 
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Next.js](https://img.shields.io/badge/Next.js-171717?style=flat-square&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/React-087EA4?style=flat-square&logo=react&logoColor=white) ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Next.js](https://img.shields.io/badge/Next.js-7C3AED?style=flat-square&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/React-0F766E?style=flat-square&logo=react&logoColor=white) ![SQLite](https://img.shields.io/badge/SQLite-15803D?style=flat-square&logo=sqlite&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-C2410C?style=flat-square&logo=docker&logoColor=white)
 
 [Open the live synthetic demo](https://trainview-sooty.vercel.app).
 
