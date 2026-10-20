@@ -19,13 +19,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-muted/30">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:p-3">Skip to content</a>
-      <header className="border-b bg-background">
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex min-h-16 max-w-5xl items-center gap-5 px-4 sm:px-6">
           <Link href="/" className="text-xl font-bold text-primary">TrainView</Link>
           <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
             {pages.map(page => (
               <Link key={page.href} href={page.href} aria-current={pathname === page.href ? 'page' : undefined}
-                className={`rounded-md px-3 py-2 text-sm ${pathname === page.href ? 'bg-accent font-semibold text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}>
+                className={`rounded-md px-3 py-2 text-sm transition-colors duration-150 ${pathname === page.href ? 'bg-accent font-semibold text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}>
                 {page.title}
               </Link>
             ))}

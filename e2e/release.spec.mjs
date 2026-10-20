@@ -126,3 +126,22 @@ test('route failure offers retry and recovers to a local preview', async ({ page
   await page.getByRole('button', { name: 'Retry route' }).click();
   await expect(page.getByRole('img', { name: 'Simplified route shape without a basemap' })).toBeVisible();
 });
+
+test('failed CSV export keeps filters and allows retry', async ({ page }) => {
+  let attempts = 0;
+  await page.route('**/api/workouts/export?**', async route => {
+    attempts += 1;
+    if (attempts === 1) await route.fulfill({ status: 503, body: 'Unavailable' });
+    else await route.continue();
+  });
+  await page.goto('/workouts');
+  await page.getByLabel('Activity type', { exact: true }).selectOption({ index: 1 });
+  const type = await page.getByLabel('Activity type', { exact: true }).inputValue();
+  await page.getByRole('button', { name: 'Export filtered CSV' }).click();
+  await expect(page.locator('main').getByRole('alert')).toContainText('download could not be prepared');
+  await expect(page.getByLabel('Activity type', { exact: true })).toHaveValue(type);
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export filtered CSV' }).click();
+  expect((await downloadPromise).suggestedFilename()).toBe('trainview-workouts.csv');
+  await expect(page.locator('main').getByRole('alert')).toHaveCount(0);
+});

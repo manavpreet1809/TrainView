@@ -28,6 +28,8 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState('');
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [from, setFrom] = useState('');
@@ -37,9 +39,27 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
   const sortedWorkouts = useMemo(() => queryWorkouts(workouts, {
     search, type, from, to, sort: sortKey, direction: sortDirection,
   }), [workouts, search, type, from, to, sortKey, sortDirection]);
-  const exportFiltered = () => {
-    const params = new URLSearchParams({search, type, from, to, sort: sortKey, direction: sortDirection});
-    window.location.assign(`/api/workouts/export?${params}`);
+  const exportFiltered = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    setExportError('');
+    try {
+      const params = new URLSearchParams({search, type, from, to, sort: sortKey, direction: sortDirection});
+      const response = await fetch(`/api/workouts/export?${params}`);
+      if (!response.ok) throw new Error('Export unavailable');
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'trainview-workouts.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      setExportError('The download could not be prepared. Please try exporting again.');
+    } finally {
+      setIsExporting(false);
+    }
   };
   const clearFilters = () => { setSearch(''); setType(''); setFrom(''); setTo(''); };
 
@@ -59,12 +79,12 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
 
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 rounded-lg bg-muted/40 p-4 sm:grid-cols-2 lg:grid-cols-4">
         <label className="space-y-1 text-sm">Search workouts
-          <Input value={search} onChange={event => setSearch(event.target.value)} placeholder="Title, type, location, or tag" />
+          <Input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search by name or place" />
         </label>
         <label className="space-y-1 text-sm">Activity type
-          <select aria-label="Activity type" className="h-9 w-full rounded-md border bg-background px-3" value={type} onChange={event => setType(event.target.value)}>
+          <select aria-label="Activity type" className="h-10 w-full rounded-md border bg-background px-3" value={type} onChange={event => setType(event.target.value)}>
             <option value="">All types</option>{types.map(value => <option key={value} value={value}>{value}</option>)}
           </select>
         </label>
@@ -73,11 +93,14 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
       </div>
       {invalidRange && <p id="date-range-error" role="alert" className="text-sm text-destructive">From date must be on or before to date.</p>}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p role="status" className="text-sm text-muted-foreground">{sortedWorkouts.length} of {workouts.length} workouts. Summary cards describe all imported activities.</p>
-        <Button type="button" variant="outline" onClick={exportFiltered} disabled={!sortedWorkouts.length}>Export filtered CSV</Button>
+        <p role="status" className="text-sm text-muted-foreground">Showing {sortedWorkouts.length} of {workouts.length} workouts.</p>
+        <Button type="button" variant="outline" onClick={exportFiltered} disabled={!sortedWorkouts.length || isExporting} aria-busy={isExporting}>{isExporting ? 'Preparing download…' : 'Export filtered CSV'}</Button>
         <Button type="button" variant="outline" onClick={clearFilters} disabled={!search && !type && !from && !to}>Clear filters</Button>
       </div>
-      <div className="overflow-x-auto rounded-2xl border border-border/70" role="region" aria-label="Workout log table" tabIndex={0}>
+      {exportError && <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{exportError}</p>}
+      <p className="text-xs text-muted-foreground">Select a column heading to sort. Open an activity to see its route and recorded measurements.</p>
+      <p className="text-xs text-muted-foreground sm:hidden">Swipe the table sideways to see more columns.</p>
+      <div className="overflow-x-auto overscroll-x-contain rounded-lg border border-border/70" role="region" aria-label="Workout log table" tabIndex={0}>
         <table className="min-w-full divide-y divide-border/70">
           <caption className="sr-only">Workout log. Use column buttons to sort and Open to inspect a session.</caption>
           <thead className="bg-muted/50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -88,8 +111,8 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
               <Th label="Distance" direction={sortKey === 'distanceKm' ? sortDirection : undefined} onClick={() => handleSort('distanceKm')} />
               <th className="px-4 py-3">Duration</th>
               <Th label="Load" direction={sortKey === 'trainingLoad' ? sortDirection : undefined} onClick={() => handleSort('trainingLoad')} />
-              <th className="px-4 py-3">Tags</th>
-              <th className="px-4 py-3 text-right">Details</th>
+              <th className="hidden px-4 py-3 lg:table-cell">Tags</th>
+              <th className="sticky right-0 bg-muted px-4 py-3 text-right">Details</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60 text-sm">
@@ -115,7 +138,7 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
                     {workout.title}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {workout.location ?? '—'}
+                    {workout.location ?? 'Not recorded'}
                   </p>
                 </td>
                 <td className="px-4 py-3">{workout.distanceKm.toFixed(1)} km</td>
@@ -139,7 +162,7 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
                     ))}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="sticky right-0 bg-card px-4 py-3 text-right">
                   <Dialog onOpenChange={open => !open && setSelectedWorkoutId(null)}>
                     <DialogTrigger asChild>
                       <Button
@@ -177,11 +200,11 @@ export function WorkoutTable({ workouts }: WorkoutTableProps) {
                             <Info icon={<Flame className="size-4" />} label="Calories">
                               {selectedWorkout.calories ?? '—'}
                             </Info>
-                            <Info icon={<MapPin className="size-4" />} label="Pace / HR">
-                              {selectedWorkout.averagePace ?? 'pace n/a'} •{' '}
+                            <Info icon={<MapPin className="size-4" />} label="Pace / heart rate">
+                              {selectedWorkout.averagePace ?? 'Pace not recorded'} •{' '}
                               {selectedWorkout.averageHeartRate
                                 ? `${selectedWorkout.averageHeartRate} bpm`
-                                : 'HR n/a'}
+                                : 'Heart rate not recorded'}
                             </Info>
                           </div>
                           {selectedWorkout.hasRoute ? (
